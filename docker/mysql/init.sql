@@ -9,9 +9,9 @@ create table if not exists admin(
     admin_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     pswd_hash VARCHAR(255) NOT NULL
-)
+);
 create table if not exists student( --记住没用复数。。。。
-    student_id VARCHAR(255) NOT NULL,--学号 登录时的账号也就是学号
+    student_id VARCHAR(255) NOT NULL UNIQUE,--学号 登录时的账号也就是学号
     name VARCHAR(255) NOT NULL,
     tel VARCHAR(255) NOT NULL,
     department VARCHAR(255) NOT NULL,--id是不是没啥必要。。或者说部门名称是不是没啥必要。。
