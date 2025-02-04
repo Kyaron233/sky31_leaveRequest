@@ -1,0 +1,4 @@
+mariadb
+flask
+bcrypt
+pandas=2.2.3
