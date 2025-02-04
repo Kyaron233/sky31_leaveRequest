@@ -6,7 +6,8 @@ def hash_pswd(raw_password: str) -> str:
     #byte_password = encode(raw_password, 'utf-8') # 原始密码转字节字符串
     byte_password = raw_password.encode('utf-8')
     hashed_password = bcrypt.hashpw(byte_password,salt) #字节字符串生成hash
-    return hashed_password
+    normalized_password = hashed_password.decode('utf-8')
+    return normalized_password
 
 def verify(input,hashed_password):
 
