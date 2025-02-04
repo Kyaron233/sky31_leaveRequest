@@ -1,0 +1,1 @@
+from myHash.hash_pswd import verify,hash_pswd
