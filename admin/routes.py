@@ -1,3 +1,5 @@
+from pyexpat.errors import messages
+
 from flask import Blueprint, render_template, redirect, url_for, request, current_app, flash,session,jsonify
 from myHash import hash_pswd,verify
 from flask import g
@@ -45,16 +47,16 @@ def login():
 
             #这里应该要写重定向语句吧。。。。先写message
             #前端写重定向吧要不。。定位到管理员主页
-            return jsonify({"message":"登陆成功"}),200
+            return jsonify({"message":"登录成功"}),200
         else:
-            return jsonify({"message": "输入错误"}), 401
+            return jsonify({"message": "账号或密码错误"}), 401
 
     except mariadb.Error as e:
         #数据库错误
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 
-@admin.route('/logout', methods=['POST','GET'])
+@admin.route('/logout', methods=['GET'])
 #登出
 def logout():
     session.pop('admin_id', None)
@@ -64,7 +66,7 @@ def logout():
 @admin.route('/query',methods=['GET'])
 def query_user_by_department():
     if session.get('admin_id') is None:
-        return jsonify({"message":"登录状态失效！"})
+        return jsonify({"message":"登录状态失效！"}),401
     department=request.args.get('department')
 
     if not department:
@@ -72,14 +74,15 @@ def query_user_by_department():
 
     try:
         # 执行 SQL 查询
-        g.cursor.execute('SELECT * FROM student WHERE department = %s', (department))
+        g.cursor.execute('SELECT * FROM student WHERE department = %s', (department,))
         users = g.cursor.fetchall()  # 获取所有匹配的用户记录
 
+        print(users)
         if not users:
             return jsonify({"message": "未找到该部门的用户"}), 404
 
         # 构造返回的 JSON 数据
-        result = [{"id": user[0], "name": user[1], "department": user[2]} for user in users]
+        result = [{"student_id": user[0], "name": user[1],"tel": user[2],"role_in_depart": user[4]} for user in users]
         return jsonify({"users": result}), 200
 
     except mariadb.Error as e:
@@ -88,55 +91,74 @@ def query_user_by_department():
 
 @admin.route('/add',methods=['POST'])
 def add_user():
-
+    if session.get('admin_id') is None:
+        return jsonify({"message":"登录状态失效！"}),401
+    try:
     #先获取各个信息
-    student_id=request.json.get('student_id')
-    name=request.json.get('name')
-    department=request.json.get('department')
-    role_in_depart=request.json.get('role_in_depart')
-    tel=request.json.get('tel')
-    password=request.json.get('password')
+        student_id=request.json.get('student_id')
+        name=request.json.get('name')
+        department=request.json.get('department')
+        role_in_depart=request.json.get('role_in_depart')
+        tel=request.json.get('tel')
+        password=request.json.get('password')
 
-    pswd_hash=hash_pswd(password)
+        pswd_hash=hash_pswd(password)
 
-    g.cursor.execute('INSERT INTO student (student_id,name,tel,department,role_in_depart,pswd_hash) VALUES (%s,%s,%s,%s,%s,%s)',(student_id,name,tel,department,role_in_depart,pswd_hash))
+        g.cursor.execute('INSERT INTO student (student_id,name,tel,department,role_in_depart,pswd_hash) VALUES (%s,%s,%s,%s,%s,%s)',(student_id,name,tel,department,role_in_depart,pswd_hash))
+        return jsonify({"message":"添加成功"}),200
+    except mariadb.Error as e:
+        return jsonify({"error": f"数据库错误：{str(e)}","message":"请检查输入参数的内容和数量是否合法！"}), 500
+
+
 
 @admin.route('/delete',methods=['POST'])
 def delete_user():
-    student_id=request.json.get('student_id')
-    g.cursor.execute('DELETE FROM student WHERE student_id = %s', (student_id))
+    if session.get('admin_id') is None:
+        return jsonify({"message":"登录状态失效！"}),401
+    try:
+        student_id=request.json.get('student_id')
+        g.cursor.execute('DELETE FROM student WHERE student_id = %s', (student_id,))
+        return jsonify({"message":"完成！"}),200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 @admin.route('/upload_excel',methods=['POST'])
 def upload_excel():
-    print(request.files)
-    if 'file' not in request.files:
-        return jsonify({"message": "未读取到文件"}), 400
+    if session.get('admin_id') is None:
+        return jsonify({"message":"登录状态失效！"}),401
+    try:
+        print(request.files)
+        if 'file' not in request.files:
+            return jsonify({"message": "未读取到文件"}), 400
 
-    file = request.files['file']
+        file = request.files['file']
 
-    if file.filename == '':
-        return jsonify({"message": "未选中文件"}), 400
+        if file.filename == '':
+            return jsonify({"message": "未选中文件"}), 400
 
-    if file.content_length > MAX_FILE_SIZE:
-        return jsonify({"message": "文件大小不得大于10MB"}), 400
+        if file.content_length > MAX_FILE_SIZE:
+            return jsonify({"message": "文件大小不得大于10MB"}), 400
 
-    now=datetime.now()
-    format_time=now.strftime('%Y_%m_%d %H:%M:%S_')
-    myfile_name = format_time+secure_filename(file.filename)
-    file_path = os.path.join('./uploads', myfile_name)
+        now=datetime.now()
+        format_time=now.strftime('%Y_%m_%d %H:%M:%S_')
+        myfile_name = format_time+secure_filename(file.filename)
+        file_path = os.path.join('./uploads', myfile_name)
 
-    file.save(file_path)
-    excel_to_add=pd.read_excel(request.files['file'])
-    expected_cols={"姓名":"name","电话":"tel","学号":"student_id","部门":"department","职位":"role_in_depart"}
-    if not all(col in excel_to_add.columns for col in expected_cols.keys()):
-        return jsonify({"error": "格式错误"}), 400
-    excel_to_add=excel_to_add[list(expected_cols.keys())].rename(columns=expected_cols)
-    insert_query="""INSERT INTO student (student_id,name,tel,department,role_in_depart) VALUES (%s,%s,%s,%s,%s)
-                    ON DUPLICATE KEY UPDATE
-                    name = VALUES(name),tel = VALUES(tel),department = VALUES(department),role_in_depart = VALUES(role_in_depart),
-                    """
-    data_to_insert = list(excel_to_add.itertuples(index=False, name=None))
-    g.cursor.executemany(insert_query, data_to_insert)
-    g.conn.commit()
-    return jsonify({"message": "上传成功"})
+        file.save(file_path)
+        excel_to_add=pd.read_excel(request.files['file'])
+        expected_cols={"姓名":"name","电话":"tel","学号":"student_id","部门":"department","职位":"role_in_depart"}
+        if not all(col in excel_to_add.columns for col in expected_cols.keys()):
+            return jsonify({"error": "格式错误"}), 400
+        excel_to_add=excel_to_add[list(expected_cols.keys())].rename(columns=expected_cols)
+        insert_query="""INSERT INTO student (student_id,name,tel,department,role_in_depart) VALUES (%s,%s,%s,%s,%s)
+                        ON DUPLICATE KEY UPDATE
+                        name = VALUES(name),tel = VALUES(tel),department = VALUES(department),role_in_depart = VALUES(role_in_depart),
+                        """
+        data_to_insert = list(excel_to_add.itertuples(index=False, name=None))
+        g.cursor.executemany(insert_query, data_to_insert)
+        g.conn.commit()
+        return jsonify({"message": "上传成功"}),200
+    except mariadb.Error as e:
+        return jsonify({"error": f"数据库错误：{str(e)}", "message": "请检查输入参数的内容和数量是否合法！"}), 500
+
 
