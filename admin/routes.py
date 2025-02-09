@@ -1,7 +1,7 @@
 from pyexpat.errors import messages
 
 from flask import Blueprint, render_template, redirect, url_for, request, current_app, flash,session,jsonify
-from myHash import hash_pswd,verify
+from myHash import hash_pswd,isPswdCorrect
 from flask import g
 import mariadb
 from werkzeug.utils import secure_filename
@@ -32,24 +32,20 @@ def login():
     admin_id=request.json.get('admin_id')
     password=request.json.get('password')
 
-    if admin_id is None or password is None:
-        return jsonify({"message": "输入错误"}), 401
 
-    hashed_pswd=hash_pswd(password)
     try:
-        g.cursor.execute('select * from admin where admin_id = %s AND pswd_hash = %s', (admin_id,hashed_pswd))
+        g.cursor.execute('select * from admin where admin_id = %s', (admin_id))
         user=g.cursor.fetchone()
 
         if user is not None:
-            #登录成功
-            session['admin_id'] = user[0]
-            session['name'] = user[1]
-
-            #这里应该要写重定向语句吧。。。。先写message
-            #前端写重定向吧要不。。定位到管理员主页
-            return jsonify({"message":"登录成功"}),200
-        else:
-            return jsonify({"message": "账号或密码错误"}), 401
+            if isPswdCorrect(password,user[pswd_hash]):
+                session['admin_id'] = user[admin_id]
+                session['name'] = user['name']
+                return jsonify({"message":"登录成功！"}),200
+            else:
+                return jsonify({"message": "用户名与密码不匹配！"}), 401
+        else :
+            return jsonify({"message": "请输入用户名！"}), 401
 
     except mariadb.Error as e:
         #数据库错误
@@ -100,7 +96,7 @@ def add_user():
         department=request.json.get('department')
         role_in_depart=request.json.get('role_in_depart')
         tel=request.json.get('tel')
-        password=request.json.get('password')
+        password=student_id[-6:] # 密码默认使用学号后六位
 
         pswd_hash=hash_pswd(password)
 
