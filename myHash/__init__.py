@@ -1,1 +1,1 @@
-from myHash.hash_pswd import verify,hash_pswd
+from myHash.hash_pswd import isPswdCorrect,hash_pswd
