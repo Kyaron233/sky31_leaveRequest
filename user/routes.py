@@ -1,17 +1,16 @@
-from flask import Flask,request,session,jsonify,Blueprint
-from ..models import db, Student, Event, LeaveApplication
-from ..password_utils import check,hashlize
+from flask import Flask,request,session,jsonify,Blueprint,g
 import logging
 import sqlite3
 from werkzeug.utils import secure_filename
 import uuid
 import os
-from ..models import allowed_file
-from app import UPLOAD_FOLDER
+import mariadb
+from myHash import hash_pswd,isPswdCorrect
+from isPswdVaild import is_valid_pswd
+
 
 user_bp = Blueprint('user', __name__)
 
-logging.basicConfig(level=logging.INFO)
 
 @user_bp.route('/login', methods=['POST'])
 def login():
@@ -19,38 +18,47 @@ def login():
     password = request.json.get('password')
 
     if student_id is None or password is None:
-        return jsonify({"message": "输入错误"}), 401
+        return jsonify({"message": "用户名或密码不能为空！"}), 401
 
     try:
-        stu=Student.query.get(int(student_id))
+        g.cursor.execute('select * from student where student_id=%s', (student_id,))
+        stu=g.cursor.fetchone()
         if  stu is not None:
-            if(check(password,stu.pswd_hash)):
-                session['student_id'] = stu.student_id
-                session['name'] = stu.name
-                session['department'] = stu.department
+            if(isPswdCorrect(password,stu['pswd_hash'])):
+                session['student_id'] = stu['student_id']
+                session['name'] = stu['name']
+                session['department'] = stu['department']
                 return jsonify({"message":"登录成功"}),200
             else:
                 return jsonify({"message":"登录失败,密码错误"}),401
         else:
             return jsonify({"message":"不存在该用户"}),404
 
-    except sqlite3.Error as e:
+    except mariadb.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
+# 未做鉴权等事项，working.....
 @user_bp.route('/update_pswd', methods=['POST'])
 def update_pswd():
     if 'student_id' not in session:
         return jsonify({"message": "请先登录"}), 401
 
-    new_pswd = request.json.get('new_pswd')
-    pswd_hash = hashlize(new_pswd)
-    pswd_hash =pswd_hash.decode('utf8')
 
+    new_pswd = request.json.get('new_pswd')
+    if new_pswd is None:
+        return jsonify({"message":"请输入新密码！"})
+    if is_valid_pswd(new_pswd):
+        pswd_hash = hash_pswd(new_pswd) # 生成新密码哈希 方法hash_pswd()得到的是一个字节字符串
+    else:
+        return jsonify({"message" : "密码不符合规则，请重新输入！"})
+
+    # 先写这里，假设前面的鉴权通过了
     try:
-        stu=Student.query.filter_by(student_id=session['student_id']).update({'pswd_hash':pswd_hash})
-        db.session.commit()
+        g.cursor.execute("UPDATE student SET pswd_hash = %s WHERE student_id = %s ", (pswd_hash,session['student_id']))
+        g.db.commit()
         return jsonify({"message":"密码修改成功"})
-    except sqlite3.Error as e:
+
+    except mariadb.Error as e:
         logging.error(f"数据库错误: {str(e)}")
         return jsonify({"message": f"数据库错误: {str(e)}"}), 500
 
@@ -61,6 +69,7 @@ def logout():
     return jsonify({"message": "账号已退出！"}), 200
 
 @user_bp.route('/info', methods=['GET'])
+# 用于“我的” 界面，获取用户信息
 def info():
     # 检查用户是否登录
     if 'student_id' not in session:
@@ -69,13 +78,14 @@ def info():
     student_id = session['student_id']
 
     try:
-        info= Student.query.filter(Student.student_id==student_id).first()
-        if info:
-            return jsonify({"name":info.name,"student_id":info.student_id,"tel":info.tel,"department":info.department,"role_in_department":info.role_in_depart}), 200
+        g.cursor.execute("select * from student where student_id=%s",(student_id,))
+        stu=g.cursor.fetchone()
+        if stu is not None:
+            return jsonify({"name":stu['name'],"student_id":stu['student_id'],"tel":stu['tel'],"department":stu['department'],"role_in_department":stu['role_in_depart']}), 200
         else:
             return jsonify({"message": "未找到用户信息"}), 404
 
-    except sqlite3.Error as e:
+    except mariadb.Error as e:
         logging.error(f"数据库错误: {str(e)}")
         return jsonify({"message": f"数据库错误: {str(e)}"}), 500
 
