@@ -33,8 +33,8 @@ def login():
         user=g.cursor.fetchone()
 
         if user is not None:
-            if isPswdCorrect(password,user[pswd_hash]):
-                session['admin_id'] = user[admin_id]
+            if isPswdCorrect(password,user['pswd_hash']):
+                session['admin_id'] = user['admin_id']
                 session['name'] = user['name']
                 return jsonify({"message":"登录成功！"}),200
             else:
@@ -43,7 +43,6 @@ def login():
             return jsonify({"message": "请输入用户名！"}), 401
 
     except mariadb.Error as e:
-        #数据库错误
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 
