@@ -12,11 +12,6 @@ import pandas as pd
 
 # 蓝图
 admin = Blueprint('admin', __name__)
-@admin.before_request
-def before_request():
-    #密码记得改回去
-    g.conn = mariadb.connect(user='root',password='240700',host='localhost',database='sky31Employees')
-    g.cursor = g.conn.cursor()
 
 #管理员需要的接口：登录，查询，增加，删除，退出登录，
 #查询应该还要细分一下：按部门查询
@@ -34,7 +29,7 @@ def login():
 
 
     try:
-        g.cursor.execute('select * from admin where admin_id = %s', (admin_id))
+        g.cursor.execute('select * from admin where admin_id = %s', (admin_id,))
         user=g.cursor.fetchone()
 
         if user is not None:
