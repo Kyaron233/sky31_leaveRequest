@@ -26,7 +26,7 @@ create table if not exists student(
 
 CREATE TABLE IF NOT EXISTS events(
     event_id INT AUTO_INCREMENT PRIMARY KEY, --事件的id，用于排序
-    event_name VARCHAR(255) AUTO_INCREMENT PRIMARY KEY not null, --事件名称
+    event_name VARCHAR(255) not null, --事件名称
     event_type VARCHAR(255) NOT NULL,--事件类型
     event_date DATETIME,--事件预定的日期
     -- event_post_date DATETIME,--发布这篇请假请求的时间

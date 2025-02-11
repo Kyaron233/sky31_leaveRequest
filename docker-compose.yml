@@ -8,7 +8,7 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URI: mysql+pymysql://user:password@db/sky31_leaveRequest
+      DATABASE_URI: mysql+pymysql://root:sky31admin@db/sky31_leaveRequest
 
   db:
     image: mariadb:latest
