@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URI: mysql+pymysql://user:password@db/sky31_leaveRequest
+
+  db:
+    image: mariadb:latest
+    volumes:
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: sky31admin
+      MYSQL_DATABASE: sky31Employees
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: sky31admin
