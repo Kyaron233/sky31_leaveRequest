@@ -10,13 +10,15 @@ import bcrypt
     #return normalized_password
 
 def isPswdCorrect(input,hashed_password):
+    input = input.encode('utf-8')
     return bcrypt.checkpw(input,hashed_password)
 
-def hash_pswd(raw_password: str) -> str:
+def hash_pswd(raw_password: str) :
     salt = bcrypt.gensalt() # 随机生成salt
     byte_password = raw_password.encode('utf-8') # 转换成字节字符串
     hashed_password = bcrypt.hashpw(byte_password,salt) # 生成hash
     return hashed_password # 返回值是字节字符串
+
 
 
 
