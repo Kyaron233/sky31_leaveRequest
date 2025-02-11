@@ -1,7 +1,7 @@
 from pyexpat.errors import messages
 
 from flask import Blueprint, render_template, redirect, url_for, request, current_app, flash,session,jsonify
-from packages import hash_pswd,isPswdCorrect
+from app.packages import hash_pswd,isPswdCorrect
 from flask import g
 import mariadb
 from werkzeug.utils import secure_filename
