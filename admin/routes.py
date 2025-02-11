@@ -1,7 +1,7 @@
 from pyexpat.errors import messages
 
 from flask import Blueprint, render_template, redirect, url_for, request, current_app, flash,session,jsonify
-from myHash import hash_pswd,isPswdCorrect
+from packages import hash_pswd,isPswdCorrect
 from flask import g
 import mariadb
 from werkzeug.utils import secure_filename
@@ -117,7 +117,6 @@ def upload_excel():
     if session.get('admin_id') is None:
         return jsonify({"message":"登录状态失效！"}),401
     try:
-        print(request.files)
         if 'file' not in request.files:
             return jsonify({"message": "未读取到文件"}), 400
 
@@ -132,7 +131,7 @@ def upload_excel():
         now=datetime.now()
         format_time=now.strftime('%Y_%m_%d %H:%M:%S_')
         myfile_name = format_time+secure_filename(file.filename)
-        file_path = os.path.join('./uploads', myfile_name)
+        file_path = os.path.join('app/upload/excel', myfile_name)
 
         file.save(file_path)
         excel_to_add=pd.read_excel(request.files['file'])
