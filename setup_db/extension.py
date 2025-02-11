@@ -7,7 +7,7 @@ def setup_db():
 
     # 数据库配置
     app.config['DB_CONFIG'] = {
-        'host': 'localhost',
+        'host': 'db',
         'port': 3306,
         'user': 'root',
         'password': '240700',
