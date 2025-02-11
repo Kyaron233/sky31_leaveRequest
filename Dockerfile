@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     libmariadb-dev \
     gcc
-RUN apt-get update && apt-get install -y libmariadb-dev && pip install --no-cache-dir -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
+RUN apt-get update && apt-get install -y libmariadb-dev && pip3 install --no-cache-dir -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # 复制项目文件
 COPY . .
@@ -25,4 +25,4 @@ ENV FLASK_APP=app/app.py
 ENV FLASK_ENV=production
 
 # 配置 Gunicorn 启动命令
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app:app"]
