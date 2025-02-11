@@ -1,4 +1,3 @@
-CREATE USER 'root'@'localhost' IDENTIFIED BY 'sky31admin';
 CREATE USER 'admin'@'localhost' IDENTIFIED BY 'sky31admin';
 CREATE DATABASE IF NOT EXISTS sky31Employees;
 GRANT ALL PRIVILEGES ON sky31Employees.* TO 'admin'@'localhost';
