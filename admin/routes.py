@@ -1,5 +1,5 @@
 from flask import Blueprint, request, session,jsonify
-from app.packages import hash_pswd,isPswdCorrect
+from packages import hash_pswd,isPswdCorrect
 from flask import g
 import mariadb
 from werkzeug.utils import secure_filename
