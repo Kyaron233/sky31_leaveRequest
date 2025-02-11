@@ -1,1 +1,0 @@
-from myHash.hash_pswd import isPswdCorrect,hash_pswd
