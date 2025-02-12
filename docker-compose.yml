@@ -7,8 +7,6 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    volumes:
-      - ./app:/app
     environment:
       DATABASE_URI: mysql+pymysql://root:sky31admin@db/sky31_leaveRequest
 
