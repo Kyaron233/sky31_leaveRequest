@@ -20,7 +20,7 @@ def setup_db():
     def before_request():
         try:
             g.conn = mariadb.connect(**app.config['DB_CONFIG'])
-            g.cursor = g.conn.cursor()
+            g.cursor = g.conn.cursor(dictionary=True)
         except mariadb.Error as e:
             print(f"数据库错误 {e}")
             return "数据库错误", 500
