@@ -9,8 +9,8 @@ def setup_db():
     app.config['DB_CONFIG'] = {
         'host': 'db',
         'port': 3306,
-        'user': 'root',
-        'password': '240700',
+        'user': 'admin',
+        'password': 'sky31admin',
         'database': 'sky31Employees',
         'autocommit': True
     }
