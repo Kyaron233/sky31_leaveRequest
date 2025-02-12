@@ -1,12 +1,10 @@
-CREATE USER 'admin'@'localhost' IDENTIFIED BY 'sky31admin';
 CREATE DATABASE IF NOT EXISTS sky31Employees;
-GRANT ALL PRIVILEGES ON sky31Employees.* TO 'admin'@'localhost';
 FLUSH PRIVILEGES;
 
-use sky31Emplyees;
+use sky31Employees;
 
 create table if not exists admin(
-    admin_id INT NOT NULL,
+    admin_id VARCHAR NOT NULL,
     name VARCHAR(255) NOT NULL,
     pswd_hash VARCHAR(255) NOT NULL
 );
