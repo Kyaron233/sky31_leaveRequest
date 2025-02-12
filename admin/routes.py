@@ -38,7 +38,7 @@ def login():
             else:
                 return jsonify({"message": "用户名与密码不匹配！"}), 401
         else :
-            return jsonify({"message": "请输入用户名！"}), 401
+            return jsonify({"message": "找不到用户！"}), 401
 
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
