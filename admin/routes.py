@@ -53,9 +53,9 @@ def logout():
 
 @admin.route('/query',methods=['GET'])
 def query_user_by_department():
-    if session.get('admin_id') is None:
-        return jsonify({"message":"登录状态失效！"}),401
-    department=request.args.get('department')
+    if not session.get('admin_id'):  # 更严格的校验
+        return jsonify({"message": "登录状态失效！"}), 401
+    department = request.args.get('department')
 
     if not department:
         return jsonify({"message": "部门名称参数缺失"}), 400
@@ -70,7 +70,7 @@ def query_user_by_department():
             return jsonify({"message": "未找到该部门的用户"}), 404
 
         # 构造返回的 JSON 数据
-        result = [{"student_id": user[0], "name": user[1],"tel": user[2],"role_in_depart": user[4]} for user in users]
+        result = [{"student_id": user['student_id'], "name": user['name'],"tel": user['tel'],"role_in_depart": user['role_in_depart']} for user in users]
         return jsonify({"users": result}), 200
 
     except mariadb.Error as e:
@@ -79,8 +79,8 @@ def query_user_by_department():
 
 @admin.route('/add',methods=['POST'])
 def add_user():
-    if session.get('admin_id') is None:
-        return jsonify({"message":"登录状态失效！"}),401
+    if not session.get('admin_id'):  # 更严格的校验
+        return jsonify({"message": "登录状态失效！"}), 401
     try:
     #先获取各个信息
         student_id=request.json.get('student_id')
@@ -101,8 +101,8 @@ def add_user():
 
 @admin.route('/delete',methods=['POST'])
 def delete_user():
-    if session.get('admin_id') is None:
-        return jsonify({"message":"登录状态失效！"}),401
+    if not session.get('admin_id'):  # 更严格的校验
+        return jsonify({"message": "登录状态失效！"}), 401
     try:
         student_id=request.json.get('student_id')
         g.cursor.execute('DELETE FROM student WHERE student_id = %s', (student_id,))
@@ -112,8 +112,8 @@ def delete_user():
 
 @admin.route('/upload_excel',methods=['POST'])
 def upload_excel():
-    if session.get('admin_id') is None:
-        return jsonify({"message":"登录状态失效！"}),401
+    if not session.get('admin_id'):  # 更严格的校验
+        return jsonify({"message": "登录状态失效！"}), 401
     try:
         if 'file' not in request.files:
             return jsonify({"message": "未读取到文件"}), 400

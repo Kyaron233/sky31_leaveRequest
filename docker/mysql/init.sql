@@ -46,6 +46,6 @@ CREATE TABLE IF NOT EXISTS whoLeave(
 
 );
 
-INSERT INTO admin (admin_id,name,pswd_hash) VALUES ('admin','testAdmin','b''$2b$12$DQ2wDn2CRcF9DhJX/MVMsum7K7zSEbKlvX7.l/mHJs1N0yA3ghI8.''')
+INSERT INTO admin (admin_id,name,pswd_hash) VALUES ('admin','testAdmin',"$2b$12$mIz8BXciBPxDArvf4lNrhuPfIrwLkbFV0LrFR7M8br5MlXqwvg6Ee")
 
 
