@@ -3,7 +3,7 @@ from packages import hash_pswd,isPswdCorrect
 from flask import g
 import mariadb
 from werkzeug.utils import secure_filename
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import secrets
 import pandas as pd
@@ -37,10 +37,9 @@ def login():
                 session['name'] = user['name']
                 session.permanent = True  # 设置会话为永久有效
 
-
-
+                session['session_id']=secrets.token_urlsafe(64)
                 response = make_response(jsonify({"message":"登录成功！"}),200)
-                response.set_cookie('session_id', secrets.token_urlsafe(64), max_age=3600, secure=True, samesite='None')
+                response.set_cookie('session_id', session['session_id'], max_age=timedelta(days=7), secure=False, samesite='None')#secure应在正式环境改成true
                 return response
             else:
                 return jsonify({"message": "用户名与密码不匹配！"}), 401
@@ -62,6 +61,8 @@ def logout():
 
     # 清除 cookie 中的 session_id
     response.delete_cookie('session_id')
+
+    session.permanent = False
 
     # 返回响应
     return response
