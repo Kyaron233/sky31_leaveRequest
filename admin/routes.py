@@ -37,8 +37,10 @@ def login():
                 session['name'] = user['name']
                 session.permanent = True  # 设置会话为永久有效
 
+                session_id=secrets.token_urlsafe(64)
+
                 response = make_response(jsonify({"message":"登录成功！"}),200)
-                response.set_cookie('session_id', secrets.token_urlsafe(64), max_age=3600, secure=True, samesite='None')
+                response.set_cookie(session_id, secrets.token_urlsafe(64), max_age=3600, secure=True, samesite='None')
                 return response
             else:
                 return jsonify({"message": "用户名与密码不匹配！"}), 401
