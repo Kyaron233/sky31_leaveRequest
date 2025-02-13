@@ -8,7 +8,7 @@ from user import user_bp
 
 app = Flask(__name__)
 app = setup_db()
-CORS(app, supports_credentials=True)
+#CORS(app, supports_credentials=True)
 
 app.secret_key = secrets.token_urlsafe(64)
 app.register_blueprint(admin, url_prefix='/admin')
@@ -17,11 +17,11 @@ app.register_blueprint(user_bp, url_prefix='/user') # 未完成
 # 设置 Session 的有效期为 168 小时（7 天）
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=168)
 
-@app.after_request
-def after_request(response):
+#@app.after_request
+#def after_request(response):
     #response.headers['Access-Control-Allow-Origin'] = '*' # 允许所有地址访问，测试用
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
-    return response
+    #response.headers['Access-Control-Allow-Credentials'] = 'true'
+    #return response
 
 
 
@@ -33,3 +33,4 @@ def hello():
 # 本地开发时，可以使用此行，生产环境使用 gunicorn 启动
 if __name__ == '__main__':
     app.run(debug=True)
+
