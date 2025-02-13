@@ -39,7 +39,7 @@ def login():
 
                 session['session_id']=secrets.token_urlsafe(64)
                 response = make_response(jsonify({"message":"登录成功！"}),200)
-                response.set_cookie('session_id', session['session_id'], max_age=timedelta(days=7), secure=False, samesite='None')#secure应在正式环境改成true
+                response.set_cookie('session_id', session['session_id'], max_age=604800, secure=False)#secure应在正式环境改成true
                 return response
             else:
                 return jsonify({"message": "用户名与密码不匹配！"}), 401
