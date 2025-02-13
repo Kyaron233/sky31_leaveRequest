@@ -109,6 +109,7 @@ def add_user():
         pswd_hash=hash_pswd(password)
 
         g.cursor.execute('INSERT INTO student (student_id,name,tel,department,role_in_depart,pswd_hash) VALUES (%s,%s,%s,%s,%s,%s)',(student_id,name,tel,department,role_in_depart,pswd_hash))
+        g.cursor.execute('UPDATE student SET isPresent = 1 WHERE role_in_depart = %s', ("部门主管",))
         return jsonify({"message":"添加成功"}),200
     except mariadb.Error as e:
         return jsonify({"error": f"数据库错误：{str(e)}","message":"请检查输入参数的内容和数量是否合法！"}), 500
@@ -159,6 +160,7 @@ def upload_excel():
                         """
         data_to_insert = list(excel_to_add.itertuples(index=False, name=None))
         g.cursor.executemany(insert_query, data_to_insert)
+        g.cursor.execute('UPDATE student SET isPresent = 1 WHERE role_in_depart = %s', ("部门主管",))
         g.conn.commit()
         return jsonify({"message": "上传成功"}),200
     except mariadb.Error as e:

@@ -46,6 +46,6 @@ CREATE TABLE IF NOT EXISTS whoLeave(
 
 );
 
-INSERT INTO admin (admin_id,name,pswd_hash) VALUES ('admin','testAdmin',"$2b$12$mIz8BXciBPxDArvf4lNrhuPfIrwLkbFV0LrFR7M8br5MlXqwvg6Ee")
+INSERT INTO admin (admin_id,name,pswd_hash) VALUES ('admin','testAdmin',"$2b$12$mIz8BXciBPxDArvf4lNrhuPfIrwLkbFV0LrFR7M8br5MlXqwvg6Ee")-- 密码是114514
 
 
