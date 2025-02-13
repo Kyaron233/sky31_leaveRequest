@@ -1,10 +1,11 @@
-from flask import Blueprint, request, session,jsonify
+from flask import Blueprint, request, session,jsonify,make_response
 from packages import hash_pswd,isPswdCorrect
 from flask import g
 import mariadb
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
+import secrets
 import pandas as pd
 
 
@@ -34,7 +35,10 @@ def login():
             if isPswdCorrect(password,user['pswd_hash']):
                 session['admin_id'] = user['admin_id']
                 session['name'] = user['name']
-                return jsonify({"message":"登录成功！"}),200
+                session.permanent = True  # 设置会话为永久有效
+
+                response = make_response(jsonify({"message":"登录成功！"}),200)
+                response.set_cookie('session_id', secrets.token_urlsafe(64), max_age=3600, secure=True, samesite='None')
             else:
                 return jsonify({"message": "用户名与密码不匹配！"}), 401
         else :
@@ -44,12 +48,20 @@ def login():
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 
-@admin.route('/logout', methods=['GET'])
-#登出
+@admin.route('/logout', methods=['POST'])
 def logout():
+    # 清除 session 中存储的登录信息
     session.pop('admin_id', None)
     session.pop('name', None)
-    return jsonify({"message": "账号已退出！"}), 200
+
+    # 创建响应对象并设置状态码为 200（成功）
+    response = make_response(jsonify({"message": "退出成功！"}), 200)
+
+    # 清除 cookie 中的 session_id
+    response.delete_cookie('session_id')
+
+    # 返回响应
+    return response
 
 @admin.route('/query',methods=['GET'])
 def query_user_by_department():
