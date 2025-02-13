@@ -19,7 +19,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=168)
 
 @app.after_request
 def after_request(response):
-    response.headers['Access-Control-Allow-Origin'] = 'http://blog.ruarua.site'  # 前端 URL
+    response.headers['Access-Control-Allow-Origin'] = '*' # 允许所有地址访问，测试用
     response.headers['Access-Control-Allow-Credentials'] = 'true'
     return response
 
