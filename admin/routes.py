@@ -69,7 +69,7 @@ def logout():
 
 @admin.route('/query',methods=['GET'])
 def query_user_by_department():
-    if not session.get('admin_id'):  # 更严格的校验
+    if not session.get('session_id'):  # 更严格的校验
         return jsonify({"message": "登录状态失效！"}), 401
     department = request.args.get('department')
 
@@ -95,7 +95,7 @@ def query_user_by_department():
 
 @admin.route('/add',methods=['POST'])
 def add_user():
-    if not session.get('admin_id'):  # 更严格的校验
+    if not session.get('session_id'):  # 更严格的校验
         return jsonify({"message": "登录状态失效！"}), 401
     try:
     #先获取各个信息
@@ -117,7 +117,7 @@ def add_user():
 
 @admin.route('/delete',methods=['POST'])
 def delete_user():
-    if not session.get('admin_id'):  # 更严格的校验
+    if not session.get('session_id'):  # 更严格的校验
         return jsonify({"message": "登录状态失效！"}), 401
     try:
         student_id=request.json.get('student_id')
@@ -128,7 +128,7 @@ def delete_user():
 
 @admin.route('/upload_excel',methods=['POST'])
 def upload_excel():
-    if not session.get('admin_id'):  # 更严格的校验
+    if not session.get('session_id'):  # 更严格的校验
         return jsonify({"message": "登录状态失效！"}), 401
     try:
         if 'file' not in request.files:
