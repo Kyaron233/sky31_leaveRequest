@@ -1,14 +1,35 @@
 from admin import admin
 import secrets
-from flask import Flask
+from flask import Flask, make_response,session
 from setup_db import setup_db
+from flask_cors import CORS
+from datetime import timedelta
+from user import user_bp
 
 app = Flask(__name__)
 app = setup_db()
-app.secret_key=secrets.token_urlsafe(64)
-app.register_blueprint(admin, url_prefix='/admin')
+CORS(app, supports_credentials=True)
 
-# 在服务器部署的代码中使用gunicorn，故删除了这里的启动（不过有点不方便本地调试）
+app.secret_key = secrets.token_urlsafe(64)
+app.register_blueprint(admin, url_prefix='/admin')
+app.register_blueprint(user_bp, url_prefix='/user') # 未完成
+
+# 设置 Session 的有效期为 168 小时（7 天）
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=168)
+
+@app.after_request
+def after_request(response):
+    response.headers['Access-Control-Allow-Origin'] = 'http://blog.ruarua.site'  # 前端 URL
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    return response
+
+
+
 @app.route('/')
 def hello():
     return "hello!"
+
+
+# 本地开发时，可以使用此行，生产环境使用 gunicorn 启动
+if __name__ == '__main__':
+    app.run(debug=True)
