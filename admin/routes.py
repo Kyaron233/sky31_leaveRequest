@@ -28,7 +28,8 @@ SESSION_EXPIRY_TIME = 604800  # 7天
 def login():
     admin_id=request.json.get('admin_id')
     password=request.json.get('password')
-
+    if admin_id is None or password is None:
+        return jsonify({"message":"用户名或密码不能为空"})
 
     try:
         g.cursor.execute('select * from admin where admin_id = %s', (admin_id,))
@@ -70,7 +71,7 @@ def logout():
 
 @admin.route('/query',methods=['GET'])
 def query_user_by_department():
-    if not login_vaild(request.cookies.get('session_id')):
+    if not admin_login_vaild(request.cookies.get('session_id')):
         return jsonify({"message": "登录状态失效！"}), 401
 
     department = request.args.get('department')
@@ -97,7 +98,7 @@ def query_user_by_department():
 
 @admin.route('/add',methods=['POST'])
 def add_user():
-    if not login_vaild(request.cookies.get('session_id')):
+    if not admin_login_vaild(request.cookies.get('session_id')):
         return jsonify({"message": "登录状态失效！"}), 401
     try:
     #先获取各个信息
@@ -120,7 +121,7 @@ def add_user():
 
 @admin.route('/delete',methods=['POST'])
 def delete_user():
-    if not login_vaild(request.cookies.get('session_id')):
+    if not admin_login_vaild(request.cookies.get('session_id')):
         return jsonify({"message": "登录状态失效！"}), 401
     try:
         student_id=request.json.get('student_id')
@@ -131,7 +132,7 @@ def delete_user():
 
 @admin.route('/upload_excel',methods=['POST'])
 def upload_excel():
-    if not login_vaild(request.cookies.get('session_id')):
+    if not admin_login_vaild(request.cookies.get('session_id')):
         return jsonify({"message": "登录状态失效！"}), 401
     try:
         if 'file' not in request.files:
@@ -168,7 +169,7 @@ def upload_excel():
     except mariadb.Error as e:
         return jsonify({"error": f"数据库错误：{str(e)}", "message": "请检查输入参数的内容和数量是否合法！"}), 500
 
-def login_vaild(session_id):
+def admin_login_vaild(session_id):
     if not session_id or not vaild_admin_session_id(session_id):
         return False
     return True
