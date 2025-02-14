@@ -4,7 +4,7 @@ services:
   web:
     build: .
     ports:
-      - "8000:8000"
+      - "80:80" # 更改为http默认端口
     depends_on:
       - db
     environment:
@@ -19,3 +19,6 @@ services:
       MYSQL_DATABASE: sky31Employees
       MYSQL_USER: admin
       MYSQL_PASSWORD: sky31admin
+
+  redis:
+    image: redis:latest
