@@ -1,12 +1,14 @@
 import json
+from asyncio import new_event_loop
 
+import redis
 from flask import Flask,request,session,jsonify,Blueprint,g
-import logging
-import sqlite3
 from werkzeug.utils import secure_filename
 import uuid
 import os
 import mariadb
+
+
 from packages import is_valid_pswd,hash_pswd,isPswdCorrect,convert_dict
 
 #上传照片的参数
@@ -15,7 +17,8 @@ MAX_FILE_SIZE = 1024*1024 * 10 # 10MB最大
 MAX_CONTENT_LENGTH = MAX_FILE_SIZE
 
 user_bp = Blueprint('user', __name__)
-
+redis_client_user = redis.StrictRedis(host='redis', port=6379, db=1, decode_responses=True) # 使用与管理员不同的redis 数据库
+SESSION_EXPIRY_TIME = 604800  # 7天
 
 @user_bp.route('/login', methods=['POST'])
 def login():
@@ -32,15 +35,21 @@ def login():
         stu=g.cursor.fetchone()
         if  stu is not None:
             if(isPswdCorrect(password,stu['pswd_hash'])):
-                session['student_id'] = stu['student_id']
-                session['name'] = stu['name']
-                session['department'] = stu['department']
-                is_XingZhengBu=True if stu['department'] == "行政部" else False
-                return jsonify({"message":"登录成功","is_XingZhengBu":is_XingZhengBu}),200
+                session_id = secrets.token_urlsafe(64)  # 随机生成 session_id
+
+                # 将 session_id 和用户关联存储到 Redis 中，设置过期时间
+                redis_client_user.set(session_id, stu['student_id'], ex=SESSION_EXPIRY_TIME)  # 键 值 过期时间
+
+                # 将 session_id 存储在浏览器的 cookie 中
+                response = make_response(jsonify({"message": "登录成功！"}), 200)
+                response.set_cookie('session_id', session_id, max_age=SESSION_EXPIRY_TIME,
+                                    secure=False)  # secure应在正式环境改成true
+
+                return response
             else:
-                return jsonify({"message":"登录失败,密码错误"}),401
+                return jsonify({"message": "用户名与密码不匹配！"}), 401
         else:
-            return jsonify({"message":"不存在该用户"}),404
+            return jsonify({"message": "找不到用户！"}), 401
 
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
@@ -48,10 +57,13 @@ def login():
 # 用手机号鉴权
 @user_bp.route('/update_pswd', methods=['POST'])
 def update_pswd():
-    if 'student_id' not in session:
-        return jsonify({"message": "请先登录"}), 401
+    session_id = request.json.get('session_id')
+    if not user_login_vaild(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
 
-    g.cursor.execute('select * from student where student_id=%s', (session['student_id'],))
+    student_id = request.json.get('student_id')
+
+    g.cursor.execute('select * from student where student_id=%s', (student_id,))
     stu=g.cursor.fetchone()
     if request.json.get('tel') != stu['tel']:
         return jsonify({"message":"手机号错误，修改失败!"})
@@ -66,7 +78,7 @@ def update_pswd():
 
 
     try:
-        g.cursor.execute("UPDATE student SET pswd_hash = %s WHERE student_id = %s ", (pswd_hash,session['student_id']))
+        g.cursor.execute("UPDATE student SET pswd_hash = %s WHERE student_id = %s ", (pswd_hash,student_id))
         g.db.commit()
         return jsonify({"message":"密码修改成功"})
 
@@ -76,18 +88,26 @@ def update_pswd():
 
 @user_bp.route('/logout', methods=['POST', 'GET'])
 def logout():
-    session.pop('student_id', None)
-    session.pop('name', None)
-    return jsonify({"message": "账号已退出！"}), 200
+    session_id = request.cookies.get('session_id')  # 获取浏览器中的 session_id
+    if session_id:
+        # 删除 Redis 中的 session_id
+        redis_client_user.delete(session_id)
+
+    # 清除浏览器中的 session_id cookie
+    response = make_response(jsonify({"message": "登出成功！"}), 200)
+    response.delete_cookie('session_id')
+
+    return response
 
 @user_bp.route('/info', methods=['GET'])
 # 用于“我的” 界面，获取用户信息
 def info():
-    # 检查用户是否登录
-    if 'student_id' not in session:
-        return jsonify({"message": "请先登录"}), 401
+    #获取cookie中的session_id
+    session_id = request.cookies.get('session_id')
+    if not user_login_vaild(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
 
-    student_id = session['student_id']
+    student_id = redis_client_user.get(session_id)
 
     try:
         g.cursor.execute("select * from student where student_id=%s",(student_id,))
@@ -106,28 +126,28 @@ def info():
 
 # 主页 显示所有正在进行的活动
 def main():
-    # 登录状态检验
-    if 'student_id' not in session:
-        return jsonify({"message":"请先登录"}), 401
+    session_id = request.cookies.get('session_id')
+    if not user_login_vaild(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+
+    student_id = redis_client_user.get(session_id)
+
+
     try:
         # 获取当前登录的用户信息 根据部门、职位来返回事件
-        g.cursor.execute("select * from student where student_id=%s",(session['student_id'],))
+        g.cursor.execute("select * from student where student_id=%s",(student_id,))
         stu=g.cursor.fetchone()
 
         # 最多有七种类型的会议，用一个含有7个字典的列表来存,并使用counts_event计数
-        toReturnEvents = [{} for _ in range(7)]
-        rawEvents = [{} for _ in range(7)]
-        counts_events = 0
+
 
         # 获取全体事件，返回一个元组
         g.cursor.execute(""
                          "SELECT event_id,event_name,event_type,event_date,event_department "
                          "FROM events WHERE event_department = '全中心' AND isActive = 1")
-        rawEvents[counts_events] = g.cursor.fetchall()
+        new_events=g.cursor.fetchall()
+        events_to_return = new_events
 
-        # 转换元组成字典
-        toReturnEvents[counts_events] = convert_dict(rawEvents[counts_events])
-        counts_events += 1
 
         # 主席团例会
         if stu['department'] == "主席团" or stu['isPresent'] == 1:
@@ -135,22 +155,17 @@ def main():
             g.cursor.execute(""
                              "SELECT event_id,event_name,event_type,event_date,event_department"
                              " FROM events WHERE event_type = '主席团例会' AND isActive = 1")
-            rawEvents[counts_events] = g.cursor.fetchall()
+            new_events = g.cursor.fetchall()
+            events_to_return.extend(new_events)
 
-            # 转换元组成字典
-            toReturnEvents[counts_events] = convert_dict(rawEvents[counts_events])
-            counts_events += 1
 
         # 部门大会
         if stu['department'] != "主席团":
             g.cursor.execute(""
                              "SELECT event_id,event_name,event_type,event_date,event_department "
                              "FROM events WHERE event_type = '部门大会' AND isActive = 1 AND event_department = %s",(stu['department'],))
-            rawEvents[counts_events] = g.cursor.fetchall()
-
-            # 转换元组成字典
-            toReturnEvents[counts_events] = convert_dict(rawEvents[counts_events])
-            counts_events += 1
+            new_events = g.cursor.fetchall()
+            events_to_return.extend(new_events)
 
         # 部长级例会
         if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长" or stu['role_in_depart'] == "部门分管":
@@ -158,11 +173,8 @@ def main():
                 "SELECT event_id,event_name,event_type,event_date,event_department "
                 "FROM events WHERE event_type = '部长级例会' AND isActive = 1 AND event_department = %s",
                 (stu['department'],))
-            rawEvents[counts_events] = g.cursor.fetchall()
-
-            # 转换元组成字典
-            toReturnEvents[counts_events] = convert_dict(rawEvents[counts_events])
-            counts_events += 1
+            new_events = g.cursor.fetchall()
+            events_to_return.extend(new_events)
 
         # 部长会议
         if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长" :
@@ -170,11 +182,8 @@ def main():
                 "SELECT event_id,event_name,event_type,event_date,event_department "
                 "FROM events WHERE event_type = '部长会议' AND isActive = 1 AND event_department = %s",
                 (stu['department'],))
-            rawEvents[counts_events] = g.cursor.fetchall()
-
-            # 转换元组成字典
-            toReturnEvents[counts_events] = convert_dict(rawEvents[counts_events])
-            counts_events += 1
+            new_events = g.cursor.fetchall()
+            events_to_return.extend(new_events)
 
         # 部长干事会议
         if stu['department'] !=  "主席团" and stu['isPresent'] == 0 :
@@ -182,14 +191,12 @@ def main():
                 "SELECT event_id,event_name,event_type,event_date,event_department "
                 "FROM events WHERE event_type = '部长干事会议' AND isActive = 1 AND event_department = %s",
                 (stu['department'],))
-            rawEvents[counts_events] = g.cursor.fetchall()
+            new_events = g.cursor.fetchall()
+            events_to_return.extend(new_events)
 
-            # 转换元组成字典
-            toReturnEvents[counts_events] = convert_dict(rawEvents[counts_events])
-            counts_events += 1
-
-            # 返回counts_events个字典
-            return jsonify(toReturnEvents[:counts_events]), 200
+            # 按照event_id（即先后顺序）排序后返回
+            events_to_return_sorted=sorted(events_to_return, key=lambda event: event['event_id'])
+            return jsonify(events_to_return_sorted), 200
 
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误{str(e)}"}), 500
@@ -199,200 +206,120 @@ def main():
 # 获取某事件的详细信息，填写请假表
 @user_bp.route('/main/leaveRequest', methods=['POST'])
 def leaveRequest():
+    session_id=request.cookies.get('session_id')
+    if not user_login_vaild(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
 
-    # 检查登录状态
-    if session['student_id'] is None:
-        return ({"message":"未登录！"}),401
+    #获取登录的用户信息
+    student_id = redis_client_user.get(session_id)
+    g.cursor.execute("select * from student where student_id=%s",(student_id,))
+    stu=g.cursor.fetchone()
 
     # 获取查询的事件名称，同时要注意：1.事件是否激活 2.是否是本部门的
     event_working=request.args.get('event_name')
 
+    # 获取“是否需要照片”这一参数，前端传入1或者0，分别代表需要和不需要
+    is_photos_needed=request.json.get('is_photos_needed')
+
     # 查找event_id
     try:
-        g.cursor.execute("SELECT event_id from events WHERE isActive = 1 AND event_department = %s AND event_name =%s",(session['department'],event_working))
+        g.cursor.execute("SELECT event_id from events WHERE isActive = 1 AND event_department = %s AND event_name =%s",(stu['department'],event_working))
         found_event_id=g.cursor.fetchone()
+
+        if found_event_id is not None:
+            return jsonify({"message":"未找到匹配的事件"})
 
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误{str(e)}"}), 500
 
-    # 提交请假表
-    try:
-        reason=request.json.get('reason')
+    if is_photos_needed:
+        # 在需要请假材料的情况下添加请假表
+        try:
+            reason=request.json.get('reason')
 
-        # 上传图片
-        # 检查是否有文件
-        if 'files' not in request.files:
-            return jsonify({"message": "未读取到文件"}), 400
+            # 上传图片
+            # 检查是否有文件
+            if 'files' not in request.files:
+                return jsonify({"message": "未读取到文件"}), 400
 
-        files = request.files.getlist('files')  # 获取多个文件
-        if not files or all(file.filename == '' for file in files):
-            return jsonify({"message": "未选中文件"}), 400
+            #以下都是传图片的代码
+            files = request.files.getlist('files')  # 获取多个文件
+            if not files or all(file.filename == '' for file in files):
+                return jsonify({"message": "未选中文件"}), 400
 
-        uploaded_files = []
-        errors = []
-
-
-        for file in files:
-            if file.filename == '':
-                errors.append({"message": "未选中文件"})
-                continue
-
-            # 计算文件大小
-            file.seek(0, os.SEEK_END)  # 移动到文件流的末尾
-            file_size = file.tell()  # 获取大小
-            file.seek(0)  # 重置文件流到开头
-
-            if file_size > MAX_FILE_SIZE:
-                errors.append({"message": f"文件 {file.filename} 大小不得大于10MB"})
-                continue
-
-            # 生成唯一文件名,但是name是中文不知道会不会出错，待调试
-            os.makedirs(f'app/upload/photos/{event_working}', exist_ok=True)
-            now = datetime.now()
-            format_time = now.strftime('%Y_%m_%d %H_%M_')
-            myfile_name = format_time + stu['name']
-            file_path = os.path.join(f'app/upload/photos/{event_working}', myfile_name) #事件名称作为一个文件夹放照片
-
-            # 一次最多上传9张照片
-            paths =["" for _ in range(9)]
-            counts_photo = 0
-            paths[counts_photo] = file_path
-            counts_photo += 1
+            uploaded_files = []
+            errors = []
 
 
-            # 保存文件
-            file.save(file_path)
-            uploaded_files.append({"filename": file.filename, "path": file_path})
+            for file in files:
+                if file.filename == '':
+                    errors.append({"message": "未选中文件"})
+                    continue
+
+                # 计算文件大小
+                file.seek(0, os.SEEK_END)  # 移动到文件流的末尾
+                file_size = file.tell()  # 获取大小
+                file.seek(0)  # 重置文件流到开头
+
+                if file_size > MAX_FILE_SIZE:
+                    errors.append({"message": f"文件 {file.filename} 大小不得大于10MB"})
+                    continue
+
+                # 生成唯一文件名,但是name是中文不知道会不会出错，待调试
+                os.makedirs(f'app/upload/photos/{event_working}', exist_ok=True)
+                now = datetime.now()
+                format_time = now.strftime('%Y_%m_%d %H_%M_')
+                myfile_name = format_time + stu['name']
+                file_path = os.path.join(f'app/upload/photos/{event_working}', myfile_name) #事件名称作为一个文件夹放照片
+
+                # 一次最多上传9张照片
+                paths =["" for _ in range(9)]
+                counts_photo = 0
+                paths[counts_photo] = file_path
+                counts_photo += 1
 
 
+                # 保存文件
+                file.save(file_path)
+                uploaded_files.append({"filename": file.filename, "path": file_path})
 
-        # 返回响应
-            if errors:
-                return jsonify({"message": "部分文件上传失败", "errors": errors, "uploaded": uploaded_files}), 400
+            # 返回响应
+                if errors:
+                    return jsonify({"message": "部分文件上传失败", "errors": errors, "uploaded": uploaded_files}), 400
 
-        paths_json = json.dumps(paths)
-        g.cursor.execute("INSERT INTO whoLeave "
-                         "(whoLeave_event,whoLeave_id,whoLeave_name,related_event,leave_reason,photo_paths,photo_amount)"
-                         "VALUES (%s, %s, %s, %s, %s, %s, %s)",event_working,session['student_id'],session['name'],found_event_id,reason,paths_json,counts_photo)
+            paths_json = json.dumps(paths)
+            #以上都是传图片的代码
 
-        return jsonify({"message": "文件上传成功", "uploaded": uploaded_files}), 200
+            g.cursor.execute("INSERT INTO whoLeave "
+                             "(whoLeave_event,whoLeave_id,whoLeave_name,related_event,leave_reason,photo_paths,photo_amount)"
+                             "VALUES (%s, %s, %s, %s, %s, %s, %s)",event_working,stu['student_id'],stu['name'],found_event_id,reason,paths_json,counts_photo)
 
-    except mariadb.Error as e:
-        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+            return jsonify({"message": "文件上传成功", "uploaded": uploaded_files}), 200
+        except mariadb.Error as e:
+            return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
-# 历史、行政部的查看、发布、审批
-import uuid
-from flask import request, session, jsonify, Blueprint
-from werkzeug.utils import secure_filename
+    else:
+        # 在不需要请假材料的情况下添加请假表
+        try:
+            reason=request.json.get('reason')
 
-user_bp = Blueprint('user', __name__)
+            g.cursor.execute("INSERT INTO whoLeave "
+                             "(whoLeave_event,whoLeave_id,whoLeave_name,related_event,leave_reason,photo_amount)"
+                             "VALUES (%s, %s, %s, %s, %s, %s)", event_working, stu['student_id'], stu['name'],
+                             found_event_id, reason,0)
 
-@user_bp.route('/apply_leave', methods=['POST'])
-def apply_leave():
-    if 'student_id' not in session:
-        return jsonify({"message": "请先登录"}), 401
+            return jsonify({"message":"返回成功"}),200
 
-    event_id = request.form.get('event_id')
-    reason = request.form.get('reason')
-
-    if event_id is None:
-        return jsonify({"message": "请提供活动 ID"}), 400
-
-    try:
-        event = Event.query.get(event_id)
-        if event is None:
-            return jsonify({"message": "未找到该活动"}), 404
-
-        image = request.files.get('image')
-        image_filename = None
-        if image and allowed_file(image.filename):
-            # 生成唯一的文件名
-            filename = secure_filename(str(uuid.uuid4()) + '.' + image.filename.rsplit('.', 1)[1].lower())
-            image.save(os.path.join(UPLOAD_FOLDER, filename))
-            image_filename = filename
-
-        leave_application = LeaveApplication(
-            student_id=session['student_id'],
-            event_id=event.id,
-            reason=reason,
-            image_filename=image_filename
-        )
-        db.session.add(leave_application)
-        db.session.commit()
-        return jsonify({"message": "请假申请已提交"}), 200
-    except sqlite3.Error as e:
-        db.session.rollback()
-        logging.error(f"数据库错误: {str(e)}")
-        return jsonify({"message": f"数据库错误: {str(e)}"}), 500
-@user_bp.route('/examine', methods=['GET'])
-# 查看自己发布活动的请假列表
+        except mariadb.Error as e:
+            return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 
-def examine():
-    if 'student_id' not in session:
-        return jsonify({"message": "请先登录"}), 401
+def user_login_vaild(session_id):
+    if not session_id or not vaild_user_session_id(session_id):
+        return False
+    return True
 
-@user_bp.route('/see_application', methods=['GET'])
-def see_application():
-    if 'student_id' not in session:
-        return jsonify({"message": "请先登录"}), 401
 
-    try:
-        records=LeaveApplication.query.filter(LeaveApplication.student_name==session['name']).all()
-        if records is None:
-            return jsonify({"message":"暂无请假记录"})
-        else:
-            result = [{"event_name": record.event_name, "name": record.student_name, "department": record.student_department,"reason":record.reason} for record in records]
-
-    except sqlite3.Error as e:
-        db.session.rollback()
-        logging.error(f"数据库错误: {str(e)}")
-        return jsonify({"message": f"数据库错误: {str(e)}"}), 500
-
-@user_bp.route('/approve_leave/<int:application_id>', methods=['POST'])
-def approve_leave(application_id):
-    if 'student_id' not in session:
-        return jsonify({"message": "请先登录"}), 401
-
-    student_name = session['name']
-
-    try:
-        leave_application = LeaveApplication.query.get(application_id)
-        if leave_application is None:
-            return jsonify({"message": "未找到该请假申请"}), 404
-
-        event = leave_application.event
-        if event.publisher != student_name:
-            return jsonify({"message": "你无权审批该请假申请"}), 403
-
-        leave_application.status = 'approved'
-        db.session.commit()
-        return jsonify({"message": "请假申请已批准"}), 200
-    except sqlite3.Error as e:
-        db.session.rollback()
-        logging.error(f"数据库错误: {str(e)}")
-        return jsonify({"message": f"数据库错误: {str(e)}"}), 500
-
-@user_bp.route('/reject_leave/<int:application_id>', methods=['POST'])
-def reject_leave(application_id):
-    if 'student_id' not in session:
-        return jsonify({"message": "请先登录"}), 401
-
-    student_name = session['name']
-
-    try:
-        leave_application = LeaveApplication.query.get(application_id)
-        if leave_application is None:
-            return jsonify({"message": "未找到该请假申请"}), 404
-
-        event = leave_application.event
-        if event.publisher != student_name:
-            return jsonify({"message": "你无权审批该请假申请"}), 403
-
-        leave_application.status = 'rejected'
-        db.session.commit()
-        return jsonify({"message": "请假申请已拒绝"}), 200
-    except sqlite3.Error as e:
-        db.session.rollback()
-        logging.error(f"数据库错误: {str(e)}")
-        return jsonify({"message": f"数据库错误: {str(e)}"}), 500
+def vaild_user_session_id(session_id):
+    user_id = redis_client_user.get(session_id)
+    return user_id is not None  # 如果有值，说明会话有效
