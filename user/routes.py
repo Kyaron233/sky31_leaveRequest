@@ -58,7 +58,7 @@ def login():
 @user_bp.route('/update_pswd', methods=['POST'])
 def update_pswd():
     session_id = request.json.get('session_id')
-    if not user_login_vaild(session_id):
+    if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
 
     student_id = request.json.get('student_id')
@@ -104,7 +104,7 @@ def logout():
 def info():
     #获取cookie中的session_id
     session_id = request.cookies.get('session_id')
-    if not user_login_vaild(session_id):
+    if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
 
     student_id = redis_client_user.get(session_id)
@@ -127,7 +127,7 @@ def info():
 # 主页 显示所有正在进行的活动
 def main():
     session_id = request.cookies.get('session_id')
-    if not user_login_vaild(session_id):
+    if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
 
     student_id = redis_client_user.get(session_id)
@@ -207,7 +207,7 @@ def main():
 @user_bp.route('/main/leaveRequest', methods=['POST'])
 def leaveRequest():
     session_id=request.cookies.get('session_id')
-    if not user_login_vaild(session_id):
+    if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
 
     #获取登录的用户信息
@@ -314,12 +314,12 @@ def leaveRequest():
             return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 
-def user_login_vaild(session_id):
-    if not session_id or not vaild_user_session_id(session_id):
+def user_login_valid(session_id):
+    if not session_id or not valid_user_session_id(session_id):
         return False
     return True
 
 
-def vaild_user_session_id(session_id):
+def valid_user_session_id(session_id):
     user_id = redis_client_user.get(session_id)
     return user_id is not None  # 如果有值，说明会话有效

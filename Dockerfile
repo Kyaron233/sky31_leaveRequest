@@ -18,11 +18,11 @@ RUN apt-get update && apt-get install -y libmariadb-dev && pip3 install --no-cac
 COPY . .
 
 # 暴露端口
-EXPOSE 8000
+EXPOSE 80
 
 # 设置环境变量
 ENV FLASK_APP=app/app.py
 ENV FLASK_ENV=production
 
 # 配置 Gunicorn 启动命令
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:80", "app:app"]
