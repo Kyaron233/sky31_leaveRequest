@@ -169,6 +169,18 @@ def upload_excel():
     except mariadb.Error as e:
         return jsonify({"error": f"数据库错误：{str(e)}", "message": "请检查输入参数的内容和数量是否合法！"}), 500
 
+@admin.route('/delete/anything', methods=['POST'])
+def delete_all():
+    if not admin_login_valid(request.cookies.get('session_id')):
+        return jsonify({"message": "登录状态失效！"}), 401
+    try:
+        g.cursor.execute('TRUNCATE TABLE student')
+        g.cursor.execute('TRUNCATE TABLE whoLeave')
+        g.cursor.execute('TRUNCATE TABLE events')
+        return jsonify({"message": "所有数据已成功删除！"}), 200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500:
+
 def admin_login_valid(session_id):
     if not session_id or not valid_admin_session_id(session_id):
         return False
