@@ -14,7 +14,6 @@ import redis
 admin = Blueprint('admin', __name__)
 
 
-ALLOWED_EXTENSIONS = {'xlsx,xls'} # 上传excel表格
 MAX_FILE_SIZE = 1024*1024 * 10 # 10MB表格最大
 MAX_CONTENT_LENGTH = MAX_FILE_SIZE
 
@@ -143,19 +142,37 @@ def upload_excel():
         if file.filename == '':
             return jsonify({"message": "未选中文件"}), 400
 
+        # 验证文件类型
+        if not file.filename.endswith(('.xlsx', '.xls')):
+            return jsonify({"message": "文件格式错误，必须是 Excel 文件"}), 400
+
         if file.content_length > MAX_FILE_SIZE:
             return jsonify({"message": "文件大小不得大于10MB"}), 400
 
+        #检查文件夹是否存在
+        UPLOAD_FOLDER='app/upload/excel'
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER)
+
+        #构建文件名
         now=datetime.now()
         format_time=now.strftime('%Y_%m_%d %H:%M:%S_')
         myfile_name = format_time+secure_filename(file.filename)
-        file_path = os.path.join('app/upload/excel', myfile_name)
+        file_path = os.path.join(UPLOAD_FOLDER, myfile_name)
 
         file.save(file_path)
-        excel_to_add=pd.read_excel(request.files['file'])
+        excel_to_add=pd.read_excel(file_path)
+
         expected_cols={"姓名":"name","电话":"tel","学号":"student_id","部门":"department","职位":"role_in_depart"}
+
+        #检测是否包含所有所需的列
         if not all(col in excel_to_add.columns for col in expected_cols.keys()):
             return jsonify({"error": "格式错误"}), 400
+
+        #处理电话、学号是int而不是字符串的情况
+        excel_to_add['学号'] = excel_to_add['学号'].astype(str)
+        excel_to_add['电话'] = excel_to_add['电话'].astype(str)
+
         excel_to_add=excel_to_add[list(expected_cols.keys())].rename(columns=expected_cols)
         insert_query="""INSERT INTO student (student_id,name,tel,department,role_in_depart) VALUES (%s,%s,%s,%s,%s)
                         ON DUPLICATE KEY UPDATE
@@ -179,7 +196,7 @@ def delete_all():
         g.cursor.execute('TRUNCATE TABLE events')
         return jsonify({"message": "所有数据已成功删除！"}), 200
     except mariadb.Error as e:
-        return jsonify({"message": f"数据库错误：{str(e)}"}), 500:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 def admin_login_valid(session_id):
     if not session_id or not valid_admin_session_id(session_id):
@@ -190,5 +207,3 @@ def admin_login_valid(session_id):
 def valid_admin_session_id(session_id):
     user_id = redis_client_admin.get(session_id)
     return user_id is not None  # 如果有值，说明会话有效
-
-
