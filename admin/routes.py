@@ -7,18 +7,21 @@ from datetime import datetime, timedelta
 import os
 import secrets
 import pandas as pd
+import redis
 
 
 # 蓝图
 admin = Blueprint('admin', __name__)
 
-#管理员需要的接口：登录，查询，增加，删除，退出登录，
-#查询应该还要细分一下：按部门查询
 
 ALLOWED_EXTENSIONS = {'xlsx,xls'} # 上传excel表格
 MAX_FILE_SIZE = 1024*1024 * 10 # 10MB表格最大
 MAX_CONTENT_LENGTH = MAX_FILE_SIZE
 
+# 使用redis管理session
+redis_client_admin = redis.StrictRedis(host='redis', port=6379, db=0, decode_responses=True)
+# 设置会话过期时间
+SESSION_EXPIRY_TIME = 604800  # 7天
 
 @admin.route('/login', methods=['POST'])
 #登录
@@ -32,14 +35,16 @@ def login():
         user=g.cursor.fetchone()
 
         if user is not None:
-            if isPswdCorrect(password,user['pswd_hash']):
-                session['admin_id'] = user['admin_id']
-                session['name'] = user['name']
-                session.permanent = True  # 设置会话为永久有效
+            if isPswdCorrect(password,user['pswd_hash']): # 密码正确与否
+                session_id = secrets.token_urlsafe(64)  # 随机生成 session_id
 
-                session['session_id']=secrets.token_urlsafe(64)
-                response = make_response(jsonify({"message":"登录成功！"}),200)
-                response.set_cookie('session_id', session['session_id'], max_age=604800, secure=False)#secure应在正式环境改成true
+                # 将 session_id 和用户关联存储到 Redis 中，设置过期时间
+                redis_client_admin.set(session_id, user['admin_id'], ex=SESSION_EXPIRY_TIME) # 键 值 过期时间
+
+                # 将 session_id 存储在浏览器的 cookie 中
+                response = make_response(jsonify({"message": "登录成功！"}), 200)
+                response.set_cookie('session_id', session_id, max_age=SESSION_EXPIRY_TIME,secure=False) # secure应在正式环境改成true
+
                 return response
             else:
                 return jsonify({"message": "用户名与密码不匹配！"}), 401
@@ -52,25 +57,22 @@ def login():
 
 @admin.route('/logout', methods=['POST'])
 def logout():
-    # 清除 session 中存储的登录信息
-    session.pop('admin_id', None)
-    session.pop('name', None)
+    session_id = request.cookies.get('session_id')  # 获取浏览器中的 session_id
+    if session_id:
+        # 删除 Redis 中的 session_id
+        redis_client_admin.delete(session_id)
 
-    # 创建响应对象并设置状态码为 200（成功）
-    response = make_response(jsonify({"message": "退出成功！"}), 200)
-
-    # 清除 cookie 中的 session_id
+    # 清除浏览器中的 session_id cookie
+    response = make_response(jsonify({"message": "登出成功！"}), 200)
     response.delete_cookie('session_id')
 
-    session.permanent = False
-
-    # 返回响应
     return response
 
 @admin.route('/query',methods=['GET'])
 def query_user_by_department():
-    if not session.get('session_id'):  # 更严格的校验
+    if not login_vaild(request.cookies.get('session_id')):
         return jsonify({"message": "登录状态失效！"}), 401
+
     department = request.args.get('department')
 
     if not department:
@@ -95,7 +97,7 @@ def query_user_by_department():
 
 @admin.route('/add',methods=['POST'])
 def add_user():
-    if not session.get('session_id'):  # 更严格的校验
+    if not login_vaild(request.cookies.get('session_id')):
         return jsonify({"message": "登录状态失效！"}), 401
     try:
     #先获取各个信息
@@ -118,7 +120,7 @@ def add_user():
 
 @admin.route('/delete',methods=['POST'])
 def delete_user():
-    if not session.get('session_id'):  # 更严格的校验
+    if not login_vaild(request.cookies.get('session_id')):
         return jsonify({"message": "登录状态失效！"}), 401
     try:
         student_id=request.json.get('student_id')
@@ -129,7 +131,7 @@ def delete_user():
 
 @admin.route('/upload_excel',methods=['POST'])
 def upload_excel():
-    if not session.get('session_id'):  # 更严格的校验
+    if not login_vaild(request.cookies.get('session_id')):
         return jsonify({"message": "登录状态失效！"}), 401
     try:
         if 'file' not in request.files:
@@ -165,5 +167,15 @@ def upload_excel():
         return jsonify({"message": "上传成功"}),200
     except mariadb.Error as e:
         return jsonify({"error": f"数据库错误：{str(e)}", "message": "请检查输入参数的内容和数量是否合法！"}), 500
+
+def login_vaild(session_id):
+    if not session_id or not vaild_admin_session_id(session_id):
+        return False
+    return True
+
+
+def vaild_admin_session_id(session_id):
+    user_id = redis_client_admin.get(session_id)
+    return user_id is not None  # 如果有值，说明会话有效
 
 
