@@ -139,6 +139,8 @@ def upload_excel():
 
         if file.filename == '':
             return jsonify({"message": "未选中文件"}), 400
+        else :
+            return  file
 
         # 验证文件类型
         if not file.filename.endswith(('.xlsx', '.xls')):
