@@ -141,8 +141,7 @@ def upload_excel():
 
         if file.filename == '':
             return jsonify({"message": "未选中文件"}), 400
-        else :
-            return  file
+
 
         # 验证文件类型
         if not file.filename.endswith(('.xlsx', '.xls')):
@@ -166,19 +165,31 @@ def upload_excel():
         excel_to_add=pd.read_excel(file_path)
 
         expected_cols={"姓名":"name","电话":"tel","学号":"student_id","部门":"department","职位":"role_in_depart"}
-
-        #检测是否包含所有所需的列
+        # 验证 Excel 文件中的列名是否与期望的列名一致
         if not all(col in excel_to_add.columns for col in expected_cols.keys()):
-            return jsonify({"error": "格式错误"}), 400
+            missing_cols = [col for col in expected_cols.keys() if col not in excel_to_add.columns]
+            return jsonify({"error": f"格式错误：缺少必要的列 - {', '.join(missing_cols)}"}), 400
+
+        # 重排列的顺序以确保一致性
+        excel_to_add = excel_to_add[expected_cols.keys()]
+
 
         #处理电话、学号是int而不是字符串的情况
         excel_to_add['学号'] = excel_to_add['学号'].astype(str)
         excel_to_add['电话'] = excel_to_add['电话'].astype(str)
 
+        # 重命名 使列名与数据库的相匹配
         excel_to_add=excel_to_add[list(expected_cols.keys())].rename(columns=expected_cols)
-        insert_query="""INSERT INTO student (student_id,name,tel,department,role_in_depart) VALUES (%s,%s,%s,%s,%s)
+
+        # 提取学号的后六位并创建新列
+        excel_to_add['last_num'] = excel_to_add['student_id'].apply(lambda x: x[-6:])
+
+        # 调用 hash_pswd()
+        excel_to_add['last_num'] = excel_to_add['last_num'].apply(hash_pswd)
+
+        insert_query="""INSERT INTO student (name,tel,student_id,department,role_in_depart,pswd_hash) VALUES (%s,%s,%s,%s,%s,%s)
                         ON DUPLICATE KEY UPDATE
-                        name = VALUES(name),tel = VALUES(tel),department = VALUES(department),role_in_depart = VALUES(role_in_depart),
+                        name = VALUES(name),tel = VALUES(tel),department = VALUES(department),role_in_depart = VALUES(role_in_depart)
                         """
         data_to_insert = list(excel_to_add.itertuples(index=False, name=None))
         g.cursor.executemany(insert_query, data_to_insert)
