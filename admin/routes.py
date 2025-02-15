@@ -134,7 +134,9 @@ def upload_excel():
     if not admin_login_valid(request.cookies.get('session_id')):
         return jsonify({"message": "登录状态失效！"}), 401
     try:
-        print (request.files['file'])
+        if 'file' not in request.files:
+            return jsonify({"message": "未读取到文件"}), 400
+
         file = request.files['file']
 
         if file.filename == '':
