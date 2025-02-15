@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS events(
 );
 CREATE TABLE IF NOT EXISTS whoLeave(
     whoLeave_event VARCHAR(255),-- 对应请假的事件
-    whoLeave_order INT AUTO_INCREMENT PRIMARY KEY,-- 请假者的次序
+    whoLeave_order INT AUTO_INCREMENT PRIMARY KEY,-- 请假表提交的次序
     whoLeave_id INT NOT NULL, -- 学号
     whoLeave_name VARCHAR(255) NOT NULL,
 

@@ -55,7 +55,7 @@ def login():
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 # 用手机号鉴权
-@user_bp.route('/update_pswd', methods=['POST'])
+@user_bp.route('/info/update_pswd', methods=['POST'])
 def update_pswd():
     session_id = request.json.get('session_id')
     if not user_login_valid(session_id):
@@ -121,10 +121,9 @@ def info():
         logging.error(f"数据库错误: {str(e)}")
         return jsonify({"message": f"数据库错误: {str(e)}"}), 500
 
-@user_bp.route('/main', methods=['GET'])
-#主页
+@user_bp.route('/query/current', methods=['GET'])
+#主页 显示进行中活动
 
-# 主页 显示所有正在进行的活动
 def main():
     session_id = request.cookies.get('session_id')
     if not user_login_valid(session_id):
@@ -133,73 +132,13 @@ def main():
     student_id = redis_client_user.get(session_id)
 
 
-    try:
-        # 获取当前登录的用户信息 根据部门、职位来返回事件
-        g.cursor.execute("select * from student where student_id=%s",(student_id,))
-        stu=g.cursor.fetchone()
+    data_to_return=find_events(student_id,isActive=1)
 
-        # 最多有七种类型的会议，用一个含有7个字典的列表来存,并使用counts_event计数
-
-
-        # 获取全体事件，返回一个元组
-        g.cursor.execute(""
-                         "SELECT event_id,event_name,event_type,event_date,event_department "
-                         "FROM events WHERE event_department = '全中心' AND isActive = 1")
-        new_events=g.cursor.fetchall()
-        events_to_return = new_events
+    if type(data_to_return) == str :
+        return jsonify({'message':data_to_return}), 500
+    return jsonify({'data':data_to_return}), 200
 
 
-        # 主席团例会
-        if stu['department'] == "主席团" or stu['isPresent'] == 1:
-            # 获取主席团事件，返回一个元组
-            g.cursor.execute(""
-                             "SELECT event_id,event_name,event_type,event_date,event_department"
-                             " FROM events WHERE event_type = '主席团例会' AND isActive = 1")
-            new_events = g.cursor.fetchall()
-            events_to_return.extend(new_events)
-
-
-        # 部门大会
-        if stu['department'] != "主席团":
-            g.cursor.execute(""
-                             "SELECT event_id,event_name,event_type,event_date,event_department "
-                             "FROM events WHERE event_type = '部门大会' AND isActive = 1 AND event_department = %s",(stu['department'],))
-            new_events = g.cursor.fetchall()
-            events_to_return.extend(new_events)
-
-        # 部长级例会
-        if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长" or stu['role_in_depart'] == "部门分管":
-            g.cursor.execute(
-                "SELECT event_id,event_name,event_type,event_date,event_department "
-                "FROM events WHERE event_type = '部长级例会' AND isActive = 1 AND event_department = %s",
-                (stu['department'],))
-            new_events = g.cursor.fetchall()
-            events_to_return.extend(new_events)
-
-        # 部长会议
-        if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长" :
-            g.cursor.execute(
-                "SELECT event_id,event_name,event_type,event_date,event_department "
-                "FROM events WHERE event_type = '部长会议' AND isActive = 1 AND event_department = %s",
-                (stu['department'],))
-            new_events = g.cursor.fetchall()
-            events_to_return.extend(new_events)
-
-        # 部长干事会议
-        if stu['department'] !=  "主席团" and stu['isPresent'] == 0 :
-            g.cursor.execute(
-                "SELECT event_id,event_name,event_type,event_date,event_department "
-                "FROM events WHERE event_type = '部长干事会议' AND isActive = 1 AND event_department = %s",
-                (stu['department'],))
-            new_events = g.cursor.fetchall()
-            events_to_return.extend(new_events)
-
-            # 按照event_id（即先后顺序）排序后返回
-            events_to_return_sorted=sorted(events_to_return, key=lambda event: event['event_id'])
-            return jsonify(events_to_return_sorted), 200
-
-    except mariadb.Error as e:
-        return jsonify({"message": f"数据库错误{str(e)}"}), 500
 
 
 
@@ -218,13 +157,21 @@ def leaveRequest():
     # 获取查询的事件名称，同时要注意：1.事件是否激活 2.是否是本部门的
     event_working=request.args.get('event_name')
 
+    # 检查是否已经有提交记录了
+    g.cursor.execute("select * from whoLeave where student_id=%s and whoLeave_event=%s",(student_id,event_working))
+    old_commit=g.cursor.fetchone()
+    if old_commit is not None:
+        commit_already_exists=True
+    else:
+        commit_already_exists=False
+
     # 获取“是否需要照片”这一参数，前端传入1或者0，分别代表需要和不需要
     is_photos_needed=request.json.get('is_photos_needed')
 
     # 查找event_id
     try:
         g.cursor.execute("SELECT event_id from events WHERE isActive = 1 AND event_department = %s AND event_name =%s",(stu['department'],event_working))
-        found_event_id=g.cursor.fetchone()
+        found_event_id=g.cursor.fetchone() # 查找对应的事件id
 
         if found_event_id is not None:
             return jsonify({"message":"未找到匹配的事件"})
@@ -294,6 +241,11 @@ def leaveRequest():
                              "(whoLeave_event,whoLeave_id,whoLeave_name,related_event,leave_reason,photo_paths,photo_amount)"
                              "VALUES (%s, %s, %s, %s, %s, %s, %s)",event_working,stu['student_id'],stu['name'],found_event_id,reason,paths_json,counts_photo)
 
+
+            # 删除旧的请假记录
+            if commit_already_exists:
+                delete_old_commit(found_event_id,stu['student_id'])
+
             return jsonify({"message": "文件上传成功", "uploaded": uploaded_files}), 200
         except mariadb.Error as e:
             return jsonify({"message": f"数据库错误：{str(e)}"}), 500
@@ -308,10 +260,24 @@ def leaveRequest():
                              "VALUES (%s, %s, %s, %s, %s, %s)", event_working, stu['student_id'], stu['name'],
                              found_event_id, reason,0)
 
+            # 删除旧的请假记录
+            if commit_already_exists:
+                delete_old_commit(found_event_id,stu['student_id'])
+
             return jsonify({"message":"返回成功"}),200
 
         except mariadb.Error as e:
             return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+# 获取自己的历史事件
+@user_bp.route('/query/history/self', methods=['POST'])
+def queryHistory():
+    session_id=request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+
+    g.cursor.execute('select ')
+
 
 
 def user_login_valid(session_id):
@@ -323,3 +289,77 @@ def user_login_valid(session_id):
 def valid_user_session_id(session_id):
     user_id = redis_client_user.get(session_id)
     return user_id is not None  # 如果有值，说明会话有效
+
+def find_events(student_id,isActive):
+    try:
+        # 获取当前登录的用户信息 根据部门、职位来返回事件
+        g.cursor.execute("select * from student where student_id=%s",(student_id,))
+        stu=g.cursor.fetchone()
+
+
+
+        # 获取全体事件，返回一个元组
+        g.cursor.execute(""
+                         "SELECT event_id,event_name,event_type,event_date,event_department "
+                         "FROM events WHERE event_department = '全中心' AND isActive = %s",(isActive,))
+        new_events=g.cursor.fetchall()
+        events_to_return = new_events
+
+
+        # 主席团例会
+        if stu['department'] == "主席团" or stu['isPresent'] == 1:
+            # 获取主席团事件，返回一个元组
+            g.cursor.execute(""
+                             "SELECT event_id,event_name,event_type,event_date,event_department"
+                             " FROM events WHERE event_type = '主席团例会' AND isActive = %s",(isActive,))
+            new_events = g.cursor.fetchall()
+            events_to_return.extend(new_events)
+
+
+        # 部门大会
+        if stu['department'] != "主席团":
+            g.cursor.execute(""
+                             "SELECT event_id,event_name,event_type,event_date,event_department "
+                             "FROM events WHERE event_type = '部门大会' AND isActive = %s AND event_department = %s",(isActive,stu['department']))
+            new_events = g.cursor.fetchall()
+            events_to_return.extend(new_events)
+
+        # 部长级例会
+        if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长" or stu['role_in_depart'] == "部门分管":
+            g.cursor.execute(
+                "SELECT event_id,event_name,event_type,event_date,event_department "
+                "FROM events WHERE event_type = '部长级例会' AND isActive = %s AND event_department = %s",
+                (isActive,['department']))
+            new_events = g.cursor.fetchall()
+            events_to_return.extend(new_events)
+
+        # 部长会议
+        if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长" :
+            g.cursor.execute(
+                "SELECT event_id,event_name,event_type,event_date,event_department "
+                "FROM events WHERE event_type = '部长会议' AND isActive = %s AND event_department = %s",
+                (isActive,['department']))
+            new_events = g.cursor.fetchall()
+            events_to_return.extend(new_events)
+
+        # 部长干事会议
+        if stu['department'] !=  "主席团" and stu['isPresent'] == 0 :
+            g.cursor.execute(
+                "SELECT event_id,event_name,event_type,event_date,event_department "
+                "FROM events WHERE event_type = '部长干事会议' AND isActive = %s AND event_department = %s",
+                (isActive,stu['department']))
+            new_events = g.cursor.fetchall()
+            events_to_return.extend(new_events)
+
+            # 按照event_id（即先后顺序）排序后返回
+        events_to_return_sorted=sorted(events_to_return, key=lambda event: event['event_id'])
+        return events_to_return_sorted
+    # 出现错误时返回字符串错误信息
+    except mariadb.Error as e:
+        return f"数据库错误{str(e)}"
+
+def delete_old_commit(event_id,student_id):
+    g.cursor.execute("select whoLeave_order from whoLeave where event_id=%s and whoLeave_id = %s ORDER BY whoLeave_order ASC LIMIT 1;",(event_id,student_id))
+    old_commit_to_delete=g.cursor.fetchone()
+    g.cursor.execute("delete from whoLeave where whoLeave_order=%s",(old_commit_to_delete,))
+
