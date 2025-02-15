@@ -4,7 +4,7 @@ services:
   web:
     build: .
     ports:
-      - "80:80" # 更改为http默认端口
+      - "8000:8000" # 更改为http默认端口
     depends_on:
       - db
     environment:
