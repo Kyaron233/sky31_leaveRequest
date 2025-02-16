@@ -13,6 +13,30 @@ import redis
 # 蓝图
 admin = Blueprint('admin', __name__)
 
+# 部门参数映射
+department_mapping = {
+    "media": "媒体运营部",
+    "workshop": "翼工坊",
+    "product": "产品经理与产品运营部",
+    "tech": "技术研发部",
+    "video": "音视频文化工作室",
+    "HR": "行政人事部",# human resource
+    "ER": "外宣部",  # external relationships
+    "wechat": "微信推文部",
+    "news": "新闻通讯社",
+    "CPPR": "企划公关部",  # corporate planning and public relations
+    "design": "设计部",
+    "president": "主席团"
+}
+
+# 职位参数映射
+role_in_depart_mapping = {
+    4:"正主席/团支书",
+    3:"分管主席",
+    2:"正部长",
+    1:"副部长",
+    0:"干事"
+}
 
 MAX_FILE_SIZE = 1024*1024 * 10 # 10MB表格最大
 MAX_CONTENT_LENGTH = MAX_FILE_SIZE
@@ -73,17 +97,19 @@ def query_user_by_department():
     if not admin_login_valid(request.cookies.get('session_id')):
         return jsonify({"message": "登录状态失效！"}), 401
 
-    department = request.args.get('department')
+    # 进行部门参数映射
+    department = department_mapping.get(request.args.get('department'))
 
     if not department:
         return jsonify({"message": "部门名称参数缺失"}), 400
+
+
 
     try:
         # 执行 SQL 查询
         g.cursor.execute('SELECT * FROM student WHERE department = %s', (department,))
         users = g.cursor.fetchall()  # 获取所有匹配的用户记录
 
-        print(users)
         if not users:
             return jsonify({"message": "未找到该部门的用户"}), 404
 
@@ -99,12 +125,13 @@ def query_user_by_department():
 def add_user():
     if not admin_login_valid(request.cookies.get('session_id')):
         return jsonify({"message": "登录状态失效！"}), 401
+
     try:
     #先获取各个信息
         student_id=request.json.get('student_id')
         name=request.json.get('name')
-        department=request.json.get('department')
-        role_in_depart=request.json.get('role_in_depart')
+        department=department_mapping.get(request.json.get('department'))
+        role_in_depart=role_in_depart_mapping.get(request.json.get('role_in_depart'))
         tel=request.json.get('tel')
         password=student_id[-6:] # 密码默认使用学号后六位
 
@@ -199,7 +226,7 @@ def upload_excel():
     except mariadb.Error as e:
         return jsonify({"error": f"数据库错误：{str(e)}", "message": "请检查输入参数的内容和数量是否合法！"}), 500
 
-@admin.route('/delete/anything', methods=['POST'])
+@admin.route('/delete/anything', methods=['GET'])
 def delete_all():
     if not admin_login_valid(request.cookies.get('session_id')):
         return jsonify({"message": "登录状态失效！"}), 401
