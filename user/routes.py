@@ -167,7 +167,7 @@ def main():
             events_to_return.extend(new_events)
 
         # 部长级例会
-        if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长" or stu['role_in_depart'] == "部门分管":
+        if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长" or stu['role_in_depart'] == "分管主席":
             g.cursor.execute(
                 "SELECT event_id,event_name,event_type,event_date,event_department "
                 "FROM events WHERE event_type = '部长级例会' AND isActive = 1 AND event_department = %s",
@@ -265,6 +265,7 @@ def leaveRequest():
                     continue
 
                 # 生成唯一文件名,但是name是中文不知道会不会出错，待调试
+                # 要注意文件夹不能正确创建等问题
                 os.makedirs(f'app/upload/photos/{event_working}', exist_ok=True)
                 now = datetime.now()
                 format_time = now.strftime('%Y_%m_%d %H_%M_')
