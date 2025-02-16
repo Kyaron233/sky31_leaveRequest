@@ -30,7 +30,7 @@ def hello():
     return "hello!"
 
 
-# 本地开发时，可以使用此行，生产环境使用 gunicorn 启动
+# 本地开发时，这里才会生效。生产环境使用 gunicorn 启动
 if __name__ == '__main__':
     app.run(debug=True)
 
