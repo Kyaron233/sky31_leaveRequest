@@ -327,20 +327,20 @@ def publish():
         return jsonify({"message": "登录状态失效！"}), 401
     try:
         if session['role_in_depart'] == '正主席' or session['role_in_depart'] == '团支书':
-            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('中心大会', '主席团例会', '部长级例会') AND isActive = 1")
+            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('中心大会', '主席团例会', '部长级例会') AND isActive = 1 ORDER BY event_date ASC")
         elif session['role_in_depart'] == '分管主席':
-            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('分管部长例会', '部门大会') AND isActive = 1")
+            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('分管部长例会', '部门大会') AND isActive = 1 ORDER BY event_date ASC")
         elif session['role_in_depart'] == '正部长':
-            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('部长干事会议', '部门大会', '部长会议') AND isActive = 1")
+            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('部长干事会议', '部门大会', '部长会议') AND isActive = 1 ORDER BY event_date ASC")
         elif session['role_in_depart'] == '副部长':
-            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type = '部长干事会议' AND isActive = 1")
+            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type = '部长干事会议' AND isActive = 1 ORDER BY event_date ASC")
 
         toReturnEvents = g.cursor.fetchall()
         return jsonify(toReturnEvents), 200
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
-
-@user_bp.route('/publish/<int:event_id>',methods=['POST'])
+#=====================================
+@user_bp.route('/publish/<int:event_id>',methods=['GET'])
 def publish_more(event_id):
     session_id = request.cookies.get('session_id')
     if not user_login_valid(session_id):
@@ -351,11 +351,13 @@ def publish_more(event_id):
                          "SELECT * FROM events WHERE event_id = %s",(eid,))
         event=g.cursor.fetchone()
         g.cursor.execute(""
-                         "SELECT wholeave_name,wholeave_order,is_permitted FROM wholeave where related_event = %s",(eid,))
+                         "SELECT wholeave_name,wholeave_order,is_permitted,photo_amount FROM wholeave where related_event = %s ORDER BY wholeave_order ASC",(eid,))
         leaver=g.cursor.fetchall()
+        is_photo_needed = any(item['photo_amount'] for item in leaver)
         result={
             "event":event,
-            "lever":leaver
+            "leaver":leaver,
+            "is_photo_needed": is_photo_needed
         }
         return jsonify(result), 200
     except mariadb.Error as e:
@@ -367,7 +369,7 @@ def delete_event(event_id):
         return jsonify({"message": "登录状态失效！"}), 401
     try:
         g.cursor.execute("DELETE FROM events WHERE event_id = %s", (event_id,))
-
+        g.cursor.execute("DELETE FROM wholeave WHERE related_event = %s", (event_id,))
         if g.cursor.rowcount > 0:
             return jsonify({"message": "活动删除成功"}), 200
         else:
