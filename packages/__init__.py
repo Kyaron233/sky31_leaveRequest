@@ -24,3 +24,11 @@ role_in_depart_mapping = {
     1:"副部长",
     0:"干事"
 }
+
+role_in_depart_mapping_reverse = {
+    "正主席/团支书":4,
+    "分管主席":3,
+    "正部长":2,
+    "副部长":1,
+    "干事":0
+}

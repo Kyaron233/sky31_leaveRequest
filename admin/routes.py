@@ -1,5 +1,5 @@
 from flask import Blueprint, request, session,jsonify,make_response
-from packages import hash_pswd,isPswdCorrect,role_in_depart_mapping,department_mapping
+from packages import hash_pswd,isPswdCorrect,role_in_depart_mapping,department_mapping,role_in_depart_mapping_reverse
 from flask import g
 import mariadb
 from werkzeug.utils import secure_filename
@@ -91,7 +91,7 @@ def query_user_by_department():
             return jsonify({"message": "未找到该部门的用户"}), 404
 
         # 构造返回的 JSON 数据
-        result = [{"student_id": user['student_id'], "name": user['name'],"tel": user['tel'],"role_in_depart": user['role_in_depart']} for user in users]
+        result = [{"student_id": user['student_id'], "name": user['name'],"tel": user['tel'],"role_in_depart": role_in_depart_mapping_reverse.get(user['role_in_depart'])} for user in users]
         return jsonify({"users": result}), 200
 
     except mariadb.Error as e:
