@@ -1,9 +1,9 @@
 from flask import Blueprint, request, session,jsonify,make_response
-from packages import hash_pswd,isPswdCorrect
+from packages import hash_pswd,isPswdCorrect,role_in_depart_mapping,department_mapping
 from flask import g
 import mariadb
 from werkzeug.utils import secure_filename
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 import secrets
 import pandas as pd
@@ -13,30 +13,7 @@ import redis
 # 蓝图
 admin = Blueprint('admin', __name__)
 
-# 部门参数映射
-department_mapping = {
-    "media": "媒体运营部",
-    "workshop": "翼工坊",
-    "product": "产品经理与产品运营部",
-    "tech": "技术研发部",
-    "video": "音视频文化工作室",
-    "HR": "行政人事部",# human resource
-    "ER": "外宣部",  # external relationships
-    "wechat": "微信推文部",
-    "news": "新闻通讯社",
-    "CPPR": "企划公关部",  # corporate planning and public relations
-    "design": "设计部",
-    "president": "主席团"
-}
 
-# 职位参数映射
-role_in_depart_mapping = {
-    4:"正主席/团支书",
-    3:"分管主席",
-    2:"正部长",
-    1:"副部长",
-    0:"干事"
-}
 
 MAX_FILE_SIZE = 1024*1024 * 10 # 10MB表格最大
 MAX_CONTENT_LENGTH = MAX_FILE_SIZE
