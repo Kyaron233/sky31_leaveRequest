@@ -16,6 +16,31 @@ ALLOWED_EXTENSIONS = {'jpg,jpeg,png,webp,heic'}
 MAX_FILE_SIZE = 1024*1024 * 10 # 10MB最大
 MAX_CONTENT_LENGTH = MAX_FILE_SIZE
 
+# 部门参数映射
+department_mapping = {
+    "media": "媒体运营部",
+    "workshop": "翼工坊",
+    "product": "产品经理与产品运营部",
+    "tech": "技术研发部",
+    "video": "音视频文化工作室",
+    "HR": "行政人事部",# human resource
+    "ER": "外宣部",  # external relationships
+    "wechat": "微信推文部",
+    "news": "新闻通讯社",
+    "CPPR": "企划公关部",  # corporate planning and public relations
+    "design": "设计部",
+    "president": "主席团"
+}
+
+# 职位参数映射
+role_in_depart_mapping = {
+    4:"正主席/团支书",
+    3:"分管主席",
+    2:"正部长",
+    1:"副部长",
+    0:"干事"
+}
+
 user_bp = Blueprint('user', __name__)
 redis_client_user = redis.StrictRedis(host='redis', port=6379, db=1, decode_responses=True) # 使用与管理员不同的redis 数据库
 SESSION_EXPIRY_TIME = 604800  # 7天
@@ -150,7 +175,7 @@ def main():
 
 
         # 主席团例会
-        if stu['department'] == "主席团" or stu['isPresent'] == 1:
+        if stu['department'] == "主席团" or stu['isPresident'] == 1:
             # 获取主席团事件，返回一个元组
             g.cursor.execute(""
                              "SELECT event_id,event_name,event_type,event_date,event_department"
@@ -186,7 +211,7 @@ def main():
             events_to_return.extend(new_events)
 
         # 部长干事会议
-        if stu['department'] !=  "主席团" and stu['isPresent'] == 0 :
+        if stu['department'] !=  "主席团" and stu['isPresident'] == 0 :
             g.cursor.execute(
                 "SELECT event_id,event_name,event_type,event_date,event_department "
                 "FROM events WHERE event_type = '部长干事会议' AND isActive = 1 AND event_department = %s",

@@ -11,7 +11,7 @@ create table if not exists admin(
 create table if not exists student(
     student_id VARCHAR(255) NOT NULL UNIQUE,-- 学号 登录时的账号也就是学号
     name VARCHAR(255) NOT NULL,
-    isPresent INT default 0, -- 意在标识是否属于主席团成员，部门为其分管的部门，其中主席团成员（团支书等）也标记为1
+    isPresident INT default 0, -- 意在标识是否属于主席团成员，部门为其分管的部门，其中主席团成员（团支书等）也标记为1
     tel VARCHAR(255) NOT NULL,
     department VARCHAR(255) NOT NULL,
     role_in_depart VARCHAR(255) NOT NULL,-- 存入职位的官方全称，团支书、正主席、部门分管、正部长、副部长、干事
