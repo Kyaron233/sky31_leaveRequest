@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 import uuid
 import os
 import mariadb
-
+from datetime import datetime
 
 from packages import is_valid_pswd,hash_pswd,isPswdCorrect,convert_dict
 
@@ -313,6 +313,196 @@ def leaveRequest():
         except mariadb.Error as e:
             return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
+#发布设计
+# 1.在发布这一栏的界面查看X自己发布过的活动X,查看自己能审批的活动,包括自己发布的和下级发布自己可以审批的,数据包括活动名称和活动截止日期
+# 2.点进活动查看活动详情(多了的数据就是活动类型和活动是否需要请假材料),并且返回请假条的粗略数据,可以在这里对活动进行删/改
+# 3.点击某条请假条查看详细信息,即姓名 学号 请假原因和照片,请假条下方点击同意/不同意进行审批
+# 4.点击“添加”发布新活动
+
+@user_bp.route('/publish', methods=['GET'])
+# 现在设置的副部长没有审批部门大会请假的权益，若需修改自行添加
+def publish():
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    try:
+        if session['role_in_depart'] == '正主席' or session['role_in_depart'] == '团支书':
+            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('中心大会', '主席团例会', '部长级例会') AND isActive = 1 ORDER BY event_date ASC")
+        elif session['role_in_depart'] == '分管主席':
+            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('分管部长例会', '部门大会') AND isActive = 1 ORDER BY event_date ASC")
+        elif session['role_in_depart'] == '正部长':
+            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('部长干事会议', '部门大会', '部长会议') AND isActive = 1 ORDER BY event_date ASC")
+        elif session['role_in_depart'] == '副部长':
+            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type = '部长干事会议' AND isActive = 1 ORDER BY event_date ASC")
+
+        toReturnEvents = g.cursor.fetchall()
+        return jsonify(toReturnEvents), 200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+#=====================================
+@user_bp.route('/publish/<int:event_id>',methods=['GET'])
+def publish_more(event_id):
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    eid=event_id
+    try:
+        g.cursor.execute(""
+                         "SELECT * FROM events WHERE event_id = %s",(eid,))
+        event=g.cursor.fetchone()
+        g.cursor.execute(""
+                         "SELECT wholeave_name,wholeave_order,is_permitted,photo_amount FROM wholeave where related_event = %s ORDER BY wholeave_order ASC",(eid,))
+        leaver=g.cursor.fetchall()
+        is_photo_needed = any(item['photo_amount'] for item in leaver)
+        result={
+            "event":event,
+            "leaver":leaver,
+            "is_photo_needed": is_photo_needed
+        }
+        return jsonify(result), 200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+@user_bp.route('/publish/<int:event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    try:
+        g.cursor.execute("DELETE FROM events WHERE event_id = %s", (event_id,))
+        g.cursor.execute("DELETE FROM wholeave WHERE related_event = %s", (event_id,))
+        if g.cursor.rowcount > 0:
+            return jsonify({"message": "活动删除成功"}), 200
+        else:
+            return jsonify({"message": "未找到对应的活动记录，删除失败"}), 404
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+@user_bp.route('/publish/<int:event_id>', methods=['PATCH'])
+def patch_event(event_id):
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    try:
+        data = request.get_json()
+        update_fields = []
+        values = []
+        # 获取 session 中的 department 值
+        department = session.get('department')
+
+        if 'event_name' in data:
+            update_fields.append('event_name = %s')
+            values.append(data['event_name'])
+
+        if 'event_type' in data:
+            update_fields.append('event_type = %s')
+            values.append(data['event_type'])
+            # 判断 event_type 是否为 '中心大会'
+            if data['event_type'] == '中心大会':
+                if 'event_department' not in [field.split('=')[0].strip() for field in update_fields]:
+                    update_fields.append('event_department = %s')
+                    values.append('全中心')
+            else:
+                # 如果 event_type 不是 '中心大会'，使用 session 中的 department
+                if 'event_department' not in [field.split('=')[0].strip() for field in update_fields]:
+                    update_fields.append('event_department = %s')
+                    values.append(department)
+
+        if 'event_date' in data:
+            update_fields.append('event_date = %s')
+            values.append(data['event_date'])
+
+        if not update_fields:
+            return jsonify({"message": "没有提供要更新的字段"}), 400
+
+        update_query = "UPDATE events SET " + ", ".join(update_fields) + " WHERE event_id = %s"
+        values.append(event_id)
+
+        g.cursor.execute(update_query, tuple(values))
+
+        if g.cursor.rowcount > 0:
+            return jsonify({"message": "活动部分更新成功"}), 200
+        else:
+            return jsonify({"message": "未找到对应的活动记录，更新失败"}), 404
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+
+@user_bp.route('/publish/<int:event_id>/<int:wholeave_order>',methods=['GET'])
+def publish_more_cat(wholeave_order):
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+
+    try:
+        g.cursor.execute(""
+                         "SELECT * FROM wholeave WHERE wholeave_order = %s",(wholeave_order,))
+        result=g.cursor.fetchone()
+        if result is None:
+            return jsonify({"message":"未找到对应的请假记录"}), 404
+        else:
+            return jsonify(result), 200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+@user_bp.route('/publish/<int:event_id>/<int:wholeave_order>/approve', methods=['POST'])
+def approve_leave_request(wholeave_order):
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    try:
+        data = request.get_json()
+        is_permitted = data.get('is_permitted')  # 1 表示同意，-1 表示拒绝
+        check_opinion = data.get('check_opinion')
+        check_time = datetime.now()
+        g.cursor.execute("""
+            UPDATE whoLeave 
+            SET is_permitted = %s, check_opinion = %s, check_time = %s 
+            WHERE wholeave_order = %s
+        """, (is_permitted, check_opinion, check_time, wholeave_order))
+
+        return jsonify({"message": "审批成功"}), 200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+
+@user_bp.route('publish/add', methods=['POST'])
+def publish_add():
+    session_id=request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+
+    ename = request.json.get('event_name')
+    etype = request.json.get('event_type')
+    edate = request.json.get('event_date')
+    flag=request.json.get('needPhoto')
+    if not ename or not etype or not edate:
+        return jsonify({"message": "活动名称、活动类型和活动日期不能为空"}), 400
+
+    try:
+        role = session.get('role_in_depart')
+        if (
+            (role in ('正主席', '团支书') and etype not in ('中心大会', '主席团例会', '部长级例会')) or
+            (role == '分管主席' and etype not in ('分管部长例会', '部门大会')) or
+            (role == '正部长' and etype not in ('部门大会', '部长干事会议', '部长会议')) or
+            (role == '副部长' and etype != '部长干事会议')
+        ):
+            return jsonify({"message": "权限错误"}), 403
+
+        if etype == '中心大会':
+
+            g.cursor.execute(
+                "INSERT INTO events (event_name, event_type, event_date, event_department,needPhoto) VALUES (%s, %s, %s, %s,%s)",
+                (ename, etype, edate, '全中心',flag)
+            )
+        else:
+            department = session.get('department')
+            g.cursor.execute(
+                "INSERT INTO events (event_name, event_type, event_date, event_department,needPhoto) VALUES (%s, %s, %s, %s,%s)",
+                (ename, etype, edate, department,flag)
+            )
+        return jsonify({"message": "活动添加成功"}), 200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 def user_login_valid(session_id):
     if not session_id or not valid_user_session_id(session_id):
