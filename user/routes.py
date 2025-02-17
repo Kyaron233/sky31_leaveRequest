@@ -3,7 +3,7 @@ from asyncio import new_event_loop
 from datetime import datetime
 
 import redis
-from flask import Flask,request,session,jsonify,Blueprint,g,make_response
+from flask import Flask,request,session,jsonify,Blueprint,g,make_response,send_file
 from werkzeug.utils import secure_filename
 import uuid
 import os
@@ -125,6 +125,7 @@ def info():
 
 
 # 主页 显示所有的活动
+# 返回值中包含了是否需要照片
 @user_bp.route('/main', methods=['GET'])
 def main():
     session_id = request.cookies.get('session_id')
@@ -144,7 +145,7 @@ def main():
 
         # 获取全体事件
         g.cursor.execute(""
-                         "SELECT event_id,event_name,event_type,event_date,event_department,isActive "
+                         "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
                          "FROM events WHERE event_department = '全中心' AND isActive=1 ")
         new_events=g.cursor.fetchall()
         events_to_return = new_events
@@ -154,7 +155,7 @@ def main():
         if stu['department'] == "主席团" or stu['isPresident'] == 1:
             # 获取主席团事件，返回一个元组
             g.cursor.execute(""
-                             "SELECT event_id,event_name,event_type,event_date,event_department,isActive "
+                             "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
                              " FROM events WHERE event_type = '主席团例会' AND isActive=1 ")
             new_events = g.cursor.fetchall()
             events_to_return.extend(new_events)
@@ -163,7 +164,7 @@ def main():
         # 部门大会
         if stu['department'] != "主席团":
             g.cursor.execute(""
-                             "SELECT event_id,event_name,event_type,event_date,event_department,isActive "
+                             "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
                              "FROM events WHERE event_type = '部门大会' AND event_department = %s ",(stu['department'],))
             new_events = g.cursor.fetchall()
             events_to_return.extend(new_events)
@@ -180,7 +181,7 @@ def main():
         # 部长会议
         if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长" :
             g.cursor.execute(
-                "SELECT event_id,event_name,event_type,event_date,event_department,isActive "
+                "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
                 "FROM events WHERE event_type = '部长会议'  AND event_department = %s ",
                 (stu['department'],))
             new_events = g.cursor.fetchall()
@@ -189,7 +190,7 @@ def main():
         # 部长干事会议
         if stu['department'] !=  "主席团" and stu['isPresident'] == 0 :
             g.cursor.execute(
-                "SELECT event_id,event_name,event_type,event_date,event_department,isActive "
+                "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
                 "FROM events WHERE event_type = '部长干事会议'  AND event_department = %s ",
                 (stu['department'],))
             new_events = g.cursor.fetchall()
@@ -233,15 +234,15 @@ def query_leaveRequest(event_id):
     if event is None:
         return jsonify({"message":"此事件未填写请假表"})
     else:
-        # 根据有没有照片定义行为,这是没有照片
-        if event['photo_amount']:
+        # 返回照片数量，前端看情况调用获取照片的接口
+        if True: #懒得改缩进了。。。。
             return jsonify({"event":event['whoLeave_event'],
                             "whoLeave_id":event['whoLeave_id'],
                             "whoLeave_name":event['whoLeave_name'],
                             "whoLeave_reason":event['whoLeave_reason'],
                             'is_permitted':event['is_permitted'],
-                            'check_opinion':event['check_opinion'],}),
-        else: #这是要返回照片的 到时候再写
+                            'check_opinion':event['check_opinion'],
+                            'photo_amount':event['photo_amount']}),200
 
 
 # 获取某事件的详细信息，填写请假表
@@ -357,8 +358,35 @@ def leaveRequest(event_id):
         except mariadb.Error as e:
             return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
+# 撤销自己发布的请假条
+@user_bp.route('/query/history/delete/<int:event_id>', methods=['DELETE'])
+def delete_leaveRequest(event_id):
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    student_id = redis_client_user.get(session_id)
+    #删除未审批的、自己发布的、当前事件的请假条
+    g.cursor.execute("select * from whoLeave where whoLeave_event_id=%s and whoLeave_id=%s and is_permitted = 0",(event_id,student_id))
+    event=g.cursor.fetchone()
+    if event is None:
+        return jsonify({"message": "找不到有效可删除事件"}), 400
+    else:
+        g.cursor.execute("DELETE FROM whoLeave WHERE whoLeave_event_id = %s and whoLeave_id = %s and is_permitted = 0",(event_id,student_id))
+        return jsonify({"message":"成功删除"}),200
+
 # 获取历史事件的概要 给行政用
 # 获取详情（包括照片等内容的时候）调用查询接口
+# 查询一个部门的所有成员
+@user_bp.route('/query/history/<str:department>')
+def queryAllMember(department):
+    session_id=request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    department = department_mapping.get(department)
+    g.cursor.execute("select * from student where department=%s",(department,))
+    members=g.cursor.fetchall()
+    return jsonify(members), 200
+
 # 按照学号查询
 @user_bp.route('/query/history/student/<int:student_id>', methods=['GET'])
 def queryHistory(student_id):
@@ -374,7 +402,7 @@ def queryHistory(student_id):
     return jsonify(events_sorted), 200
 
 # 按照部门查询
-@user_bp.route('/query/history/department/<str:department_id>', methods=['GET'])
+@user_bp.route('/query/history/department/<str:department>', methods=['GET'])
 def queryHistoryByDepartment(department_id):
     session_id=request.cookies.get('session_id')
     if not user_login_valid(session_id):
@@ -389,7 +417,7 @@ def queryHistoryByDepartment(department_id):
     events_sorted = sorted(events, key=lambda x: x['check_time'], reverse=True)
     return jsonify(events_sorted), 200
 
-
+#查询自己的
 #这里也忘记加返回照片了
 @user_bp.route('/query/history/self', methods=['GET'])
 def queryHistory_self():
@@ -398,12 +426,232 @@ def queryHistory_self():
         return jsonify({"message": "登录状态失效！"}), 401
 
     student_id=redis_client_user.get(session_id)
-    g.cursor.execute('select event_name,leave_reason,check_opinion,ispermitted,check_time from whoLeave where whoLeave_id = %s',(student_id,))
+    g.cursor.execute('select event_name,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s',(student_id,))
     events=g.cursor.fetchall()
 
     #到时候看下排序前需不需要格式化时间
     events_sorted = sorted(events, key=lambda x: x['check_time'], reverse=True)
     return jsonify(events_sorted), 200
+
+
+# 返回照片
+@user_bp.route('/query/history/photo/<int:event_id>/<int:student_id>', methods=['GET'])
+def queryHistoryPhoto(event_id, student_id):
+    session_id=request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    # 获取是第几张照片 （以0作为第一位）
+    photo_order=request.args.get('photo_order')
+
+    # 查找存储在数据库中的照片路径 将其解析
+    g.cursor.execute("select photo_paths from whoLeave where whoLeave_event_id = %s and whoLeave_id=%s",(event_id,student_id))
+    path=g.cursor.fetchone()
+    paths = json.loads(path) # 将字符串转换成列表
+    file_paths = [path for path in paths if path] # 使用列表推导式过滤掉空路径
+    file_to_return=file_paths[photo_order]
+    # 获取文件扩展名并设置对应的 mimetype
+    ext = file_to_return.split('.')[-1].lower()
+    if ext == 'jpg' or ext == 'jpeg':
+        mimetype = 'image/jpeg'
+    elif ext == 'png':
+        mimetype = 'image/png'
+    elif ext == 'webp':
+        mimetype = 'image/webp'
+    else:
+        return jsonify({"message":"不支持的格式"}),400
+
+    return send_file(file_to_return, mimetype=mimetype)
+
+
+#发布设计
+# 1.在发布这一栏的界面查看X自己发布过的活动X,查看自己能审批的活动,包括自己发布的和下级发布自己可以审批的,数据包括活动名称和活动截止日期
+# 2.点进活动查看活动详情(多了的数据就是活动类型和活动是否需要请假材料),并且返回请假条的粗略数据,可以在这里对活动进行删/改
+# 3.点击某条请假条查看详细信息,即姓名 学号 请假原因和照片,请假条下方点击同意/不同意进行审批
+# 4.点击“添加”发布新活动
+
+# 获取在发布页面能显示的事件（可删除、更改的）
+# 只获取进行中的（isActive==1）
+@user_bp.route('/publish', methods=['GET'])
+# 现在设置的副部长没有审批部门大会请假的权益，若需修改自行添加
+def publish():
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    student_id = redis_client_user.get(session_id)
+    g.cursor.execute("select role_in_depart,department from student where student_id=%s",(student_id,))
+    stu=g.cursor.fetchone()
+    #到时候检查一下权限问题
+    try:
+        if stu['role_in_depart'] == '正主席' or stu['role_in_depart'] == '团支书':
+            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('中心大会', '主席团例会', '部长级例会') AND isActive = 1 and department=%s ORDER BY event_date ASC",stu['department'])
+        elif session['role_in_depart'] == '分管主席':
+            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('分管部长例会', '部门大会') AND isActive = 1 and department=%s ORDER BY event_date ASC",stu['department'])
+        elif session['role_in_depart'] == '正部长':
+            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('部长干事会议', '部门大会', '部长会议') AND isActive = 1  and department=%s ORDER BY event_date ASC",stu['department'])
+        elif session['role_in_depart'] == '副部长':
+            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type = '部长干事会议' AND isActive = 1  and department=%s ORDER BY event_date ASC",stu['department'])
+
+        toReturnEvents = g.cursor.fetchall()
+        return jsonify(toReturnEvents), 200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+
+
+
+# 删除对应事件
+@user_bp.route('/publish/<int:event_id>', methods=['DELETE'])
+def delete_event(event_id):
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    #前端根据登录用户的职位来做是否显示删除按钮的逻辑
+    try:
+        g.cursor.execute("DELETE FROM events WHERE event_id = %s", (event_id,))
+        g.cursor.execute("DELETE FROM wholeave WHERE whoLeave_event_id = %s", (event_id,))
+        if g.cursor.rowcount > 0:
+            return jsonify({"message": "活动删除成功"}), 200
+        else:
+            return jsonify({"message": "未找到对应的活动记录，删除失败"}), 404
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+# 更新事件（而非更新请假条）
+@user_bp.route('/publish/<int:event_id>', methods=['PATCH'])
+def patch_event(event_id):
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    # 和删除那里一样，前端根据职位的逻辑定义是否能显示更新事件的按钮
+    try:
+        data = request.get_json()
+        update_fields = []
+        values = []
+        # 获取 session 中的 department 值
+        department = session.get('department')
+
+        if 'event_name' in data:
+            update_fields.append('event_name = %s')
+            values.append(data['event_name'])
+
+        if 'event_type' in data:
+            update_fields.append('event_type = %s')
+            values.append(data['event_type'])
+            # 判断 event_type 是否为 '中心大会'
+            if data['event_type'] == '中心大会':
+                if 'event_department' not in [field.split('=')[0].strip() for field in update_fields]:
+                    update_fields.append('event_department = %s')
+                    values.append('全中心')
+            else:
+                # 如果 event_type 不是 '中心大会'，使用 session 中的 department
+                if 'event_department' not in [field.split('=')[0].strip() for field in update_fields]:
+                    update_fields.append('event_department = %s')
+                    values.append(department)
+
+        if 'event_date' in data:
+            update_fields.append('event_date = %s')
+            values.append(data['event_date'])
+
+        if not update_fields:
+            return jsonify({"message": "没有提供要更新的字段"}), 400
+
+        update_query = "UPDATE events SET " + ", ".join(update_fields) + " WHERE event_id = %s"
+        values.append(event_id)
+
+        g.cursor.execute(update_query, tuple(values))
+
+        if g.cursor.rowcount > 0:
+            return jsonify({"message": "活动部分更新成功"}), 200
+        else:
+            return jsonify({"message": "未找到对应的活动记录，更新失败"}), 404
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+
+# 获取当前事件的请假表（获取谁请假了等信息 用于审批）
+@user_bp.route('/publish/<int:event_id>',methods=['GET'])
+def publish_more(event_id):
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    eid=event_id
+    try:
+        g.cursor.execute(""
+                         "SELECT * FROM events WHERE event_id = %s",(eid,))
+        event=g.cursor.fetchone()
+        g.cursor.execute(""
+                         "SELECT wholeave_name,wholeave_order,is_permitted,photo_amount FROM wholeave where related_event = %s ORDER BY wholeave_order ASC",(eid,))
+        leaver=g.cursor.fetchall()
+        is_photo_needed = any(item['photo_amount'] for item in leaver) #遍历 （但是其实这里应该都是同一个布尔值，要么没照片都是0，要么有照片，此时布尔值为true）
+        result={
+            "event":event,
+            "leaver":leaver,
+            "is_photo_needed": is_photo_needed
+        }
+        return jsonify(result), 200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+# 审批
+@user_bp.route('/publish/<int:event_id>/<int:wholeave_id>/approve', methods=['POST'])
+def approve_leave_request(event_id,wholeave_id):
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    try:
+        data = request.get_json()
+        is_permitted = data.get('is_permitted')  # 1 表示同意，-1 表示拒绝
+        check_opinion = data.get('check_opinion')
+        check_time = datetime.now()
+        g.cursor.execute("""
+            UPDATE whoLeave 
+            SET is_permitted = %s, check_opinion = %s, check_time = %s 
+            WHERE wholeave_event_id = %s and whoLeave_id=%s
+        """, (is_permitted, check_opinion, check_time, event_id,wholeave_id))
+
+        return jsonify({"message": "审批成功"}), 200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+# 发布请假事件
+@user_bp.route('publish/add', methods=['POST'])
+def publish_add():
+    session_id=request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+
+    ename = request.json.get('event_name')
+    etype = request.json.get('event_type')
+    edate = request.json.get('event_date')
+    flag=request.json.get('is_photo_needed') # 0 or 1
+    if not ename or not etype or not edate:
+        return jsonify({"message": "活动名称、活动类型和活动日期不能为空"}), 400
+
+    try:
+        role = session.get('role_in_depart')
+        if (
+            (role in ('正主席', '团支书') and etype not in ('中心大会', '主席团例会', '部长级例会')) or
+            (role == '分管主席' and etype not in ('分管部长例会', '部门大会')) or
+            (role == '正部长' and etype not in ('部门大会', '部长干事会议', '部长会议')) or
+            (role == '副部长' and etype != '部长干事会议')
+        ):
+            return jsonify({"message": "权限错误"}), 403
+
+        if etype == '中心大会':
+
+            g.cursor.execute(
+                "INSERT INTO events (event_name, event_type, event_date, event_department,is_photo_needed) VALUES (%s, %s, %s, %s,%s)",
+                (ename, etype, edate, '全中心',flag)
+            )
+        else:
+            department = session.get('department')
+            g.cursor.execute(
+                "INSERT INTO events (event_name, event_type, event_date, event_department,is_photo_needed) VALUES (%s, %s, %s, %s,%s)",
+                (ename, etype, edate, department,flag)
+            )
+        return jsonify({"message": "活动添加成功"}), 200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 
 
