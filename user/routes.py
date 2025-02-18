@@ -402,20 +402,41 @@ def queryHistory(student_id):
     return jsonify(events_sorted), 200
 
 # 按照部门查询
-@user_bp.route('/query/history/department/<str:department>', methods=['GET'])
-def queryHistoryByDepartment(department_id):
+# 先获取部门所有参加过的事件
+@user_bp.route('/query/history/department/<str:department_id>', methods=['GET'])
+def query_by_department(department_id):
     session_id=request.cookies.get('session_id')
     if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
+    try:
+        department=department_mapping.get(department_id)
 
-    department=department_mapping.get(department_id)
+        g.cursor.execute('select * from events where (event_department = %s OR event_department = '全中心')',(department,))
+        events=g.cursor.fetchall()
 
-    g.cursor.execute('select event_name,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_department = %s',(department,))
-    events=g.cursor.fetchall()
+        #到时候看下排序前需不需要格式化时间
+        events_sorted = sorted(events, key=lambda x: x['event_id'], reverse=True)
+        return jsonify(events_sorted), 200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
-    #到时候看下排序前需不需要格式化时间
-    events_sorted = sorted(events, key=lambda x: x['check_time'], reverse=True)
-    return jsonify(events_sorted), 200
+#获取部门内某事件成员的请假情况
+@user_bp.route('/query/history/department/<str:department_id>/<int:event_id>', methods=['GET'])
+def query_department_leaveRequset(department_id,event_id):
+    session_id=request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    try:
+        department=department_mapping.get(department_id)
+        g.cursor.execute('select * from whoLeave where (event_department = %s OR event_department = '全中心') and whoLeave_event_id=%s',(department,event_id))
+        events=g.cursor.fetchall()
+
+        events_sorted = sorted(events, key=lambda x: x['whoLeave_order'], reverse=True)
+        return jsonify(events_sorted), 200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+        
+
 
 #查询自己的
 #这里也忘记加返回照片了
