@@ -71,20 +71,20 @@ def update_pswd():
     g.cursor.execute('select * from student where student_id=%s', (student_id,))
     stu=g.cursor.fetchone()
     if request.json.get('tel') != stu['tel']:
-        return jsonify({"message":"手机号错误，修改失败!"})
+        return jsonify({"message":"手机号错误，修改失败!"}),400
 
     new_pswd = request.json.get('new_pswd')
     if new_pswd is None:
-        return jsonify({"message":"请输入新密码！"})
+        return jsonify({"message":"请输入新密码！"}),400
     if is_valid_pswd(new_pswd):
         pswd_hash = hash_pswd(new_pswd) # 生成新密码哈希 方法hash_pswd()得到的是一个字节字符串
     else:
-        return jsonify({"message" : "密码不符合规则，请重新输入！"})
+        return jsonify({"message" : "密码不符合规则，请重新输入！"}),400
 
 
     try:
         g.cursor.execute("UPDATE student SET pswd_hash = %s WHERE student_id = %s ", (pswd_hash,student_id))
-        return jsonify({"message":"密码修改成功"})
+        return jsonify({"message":"密码修改成功"}),200
 
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误: {str(e)}"}), 500
