@@ -3,7 +3,7 @@ from asyncio import new_event_loop
 from datetime import datetime
 
 import redis
-from flask import Flask,request,session,jsonify,Blueprint,g,make_response,send_file
+from flask import Flask,request,session,jsonify,Blueprint,g,make_response,send_from_directory
 from werkzeug.utils import secure_filename
 import uuid
 import os
@@ -434,7 +434,7 @@ def queryHistory_self():
     return jsonify(events_sorted), 200
 
 
-# 返回照片
+# 返回照片 （旧
 @user_bp.route('/query/history/photo/<int:event_id>/<int:student_id>', methods=['GET'])
 def queryHistoryPhoto(event_id, student_id):
     session_id=request.cookies.get('session_id')
@@ -461,6 +461,58 @@ def queryHistoryPhoto(event_id, student_id):
         return jsonify({"message":"不支持的格式"}),400
 
     return send_file(file_to_return, mimetype=mimetype)
+
+# 返回照片 （新，优先使用新，确定新的无法使用再使用旧的）
+# 存储文件的根目录
+BASE_DIR = 'app/upload/photo'  # 容器内的文件根目录
+
+# 遍历文件夹并返回所有文件的路径，包括子目录
+def get_all_files(directory):
+    file_paths = []
+    for root, dirs, files in os.walk(directory):  # 遍历根目录及子目录
+        for file in files:
+            # 拼接出相对路径（例如文件夹结构：root/subdir/file.jpg）
+            relative_path = os.path.relpath(os.path.join(root, file), BASE_DIR)
+            file_paths.append(relative_path)
+    return file_paths
+
+@app.route('/list-files', methods=['POST'])
+def list_files():
+    # 从请求中获取 event_id 和 student_id
+    data = request.get_json()
+    event_id = data.get('event_id')
+    student_id = data.get('student_id')
+    
+    if not event_id or not student_id:
+        return jsonify({"error": "缺失参数"}), 400
+    
+    # 获取目录下的所有文件（包括子目录中的文件）
+    DIR = os.path.join(BASE_DIR, str(event_id), str(student_id))
+    
+    # 确保目录存在
+    if not os.path.exists(DIR):
+        return jsonify({"error": "未找到路径"}), 404
+
+    files = get_all_files(DIR)
+    return jsonify(files)
+
+# 提供访问文件的路由
+@app.route('/files/<event_id>/<student_id>/<path:filename>')
+def serve_file(event_id, student_id, filename):
+    # 使用 send_from_directory 访问容器内的文件
+    DIR = os.path.join(BASE_DIR, str(event_id), str(student_id))
+    
+    # 确保文件路径在目录内，防止路径穿越
+    safe_base = os.path.realpath(DIR)
+    requested_file = os.path.realpath(os.path.join(DIR, filename))
+    
+    if not requested_file.startswith(safe_base):
+        return jsonify({"error": "禁止访问"}), 403
+
+    if os.path.exists(requested_file):
+        return send_from_directory(DIR, filename)
+    else:
+        return jsonify({"error": "未找到文件"}), 404
 
 
 #发布设计
