@@ -229,21 +229,23 @@ def query_leaveRequest(event_id):
     if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
     student_id = redis_client_user.get(session_id)
-    g.cursor.execute("select whoLeave_event,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount,is_permitted,check_opinion from whoLeave where student_id=%s and whoLeave_event_id",(student_id,event_id))
-    event = g.cursor.fetchone()
-    if event is None:
-        return jsonify({"message":"此事件未填写请假表"})
-    else:
-        # 返回照片数量，前端看情况调用获取照片的接口
-        if True: #懒得改缩进了。。。。
-            return jsonify({"event":event['whoLeave_event'],
-                            "whoLeave_id":event['whoLeave_id'],
-                            "whoLeave_name":event['whoLeave_name'],
-                            "whoLeave_reason":event['whoLeave_reason'],
-                            'is_permitted':event['is_permitted'],
-                            'check_opinion':event['check_opinion'],
-                            'photo_amount':event['photo_amount']}),200
-
+    try:
+        g.cursor.execute("select whoLeave_event,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount,is_permitted,check_opinion from whoLeave where student_id=%s and whoLeave_event_id",(student_id,event_id))
+        event = g.cursor.fetchone()
+        if event is None:
+            return jsonify({"message":"此事件未填写请假表"}),201
+        else:
+            # 返回照片数量，前端看情况调用获取照片的接口
+            if True: #懒得改缩进了。。。。
+                return jsonify({"event":event['whoLeave_event'],
+                                "whoLeave_id":event['whoLeave_id'],
+                                "whoLeave_name":event['whoLeave_name'],
+                                "whoLeave_reason":event['whoLeave_reason'],
+                                'is_permitted':event['is_permitted'],
+                                'check_opinion':event['check_opinion'],
+                                'photo_amount':event['photo_amount']}),200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 # 获取某事件的详细信息，填写请假表
 @user_bp.route('/main/leaveRequest/<int:event_id>', methods=['POST'])
