@@ -311,11 +311,11 @@ def leaveRequest(event_id):
 
                 # 生成唯一文件名,但是name是中文不知道会不会出错，待调试
                 # 要注意文件夹不能正确创建等问题
-                os.makedirs(f'app/upload/photos/{event_id}', exist_ok=True)
-                now = datetime.now()
-                format_time = now.strftime('%Y_%m_%d %H_%M_')
-                myfile_name = format_time + ' ' + stu['name']
-                file_path = os.path.join(f'app/upload/photos/{event_id}', myfile_name) #事件id作为一个文件夹放照片
+                os.makedirs(f'app/upload/photos/{event_id}/{student_id}', exist_ok=True)
+                #now = datetime.now()
+                #format_time = now.strftime('%Y_%m_%d %H_%M_')
+                myfile_name = str(counts_photo)
+                file_path = os.path.join(f'app/upload/photos/{event_id}/{student_id}', myfile_name) #事件id作为一个文件夹放照片
 
                 # 一次最多上传3张照片，前端拦截掉超过3张照片的请求
                 paths =["" for _ in range(3)]
