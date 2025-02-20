@@ -229,7 +229,7 @@ def main():
 
             # 遍历列表，找到第一个时间超过当前时间的事件
             for index, event in enumerate(events_to_return_sorted):
-                event_time = datetime.strptime(event['event_date'], '%Y-%m-%d %H:%M:%S',)  # 根据日期时间格式进行解析
+                #event_time = datetime.strptime(event['event_date'], '%Y-%m-%d %H:%M:%S',)  # 根据日期时间格式进行解析
                 if event['isActive'] == 0: # 说明事件已经被标记为过期，那么后续事件也已经被标记为过期,此时则不需要执行
                     break
 
