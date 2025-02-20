@@ -414,7 +414,7 @@ def delete_leaveRequest(event_id):
 # 获取历史事件的概要 给行政用
 # 获取详情（包括照片等内容的时候）调用查询接口
 # 查询一个部门的所有成员
-@user_bp.route('/query/history/<str:department>',methods=['GET'])
+@user_bp.route('/query/history/<string:department>',methods=['GET'])
 def queryAllMember(department):
     session_id=request.cookies.get('session_id')
     if not user_login_valid(session_id):
@@ -444,7 +444,7 @@ def queryHistory(student_id):
 
 # 按照部门查询
 # 先获取部门所有参加过的事件
-@user_bp.route('/query/history/department/<str:department_id>', methods=['GET'])
+@user_bp.route('/query/history/department/<string:department_id>', methods=['GET'])
 def query_by_department(department_id):
     session_id=request.cookies.get('session_id')
     if not user_login_valid(session_id):
@@ -464,7 +464,7 @@ def query_by_department(department_id):
 # 按部门查询 获取某事件的详情
 # 查询某事件的某部门请假的人
 #这里一次性显示了所有该部门该事件所有请假条 如果需要查具体，则调用按照学号和事件id的那个接口来查具体
-@user_bp.route('/query/history/department/<str:department_id>/<int:event_id>', methods=['GET'])
+@user_bp.route('/query/history/department/<string:department_id>/<int:event_id>', methods=['GET'])
 def memberRequestDetails(department_id,event_id):
     session_id=request.cookies.get('session_id')
     if not user_login_valid(session_id):
@@ -477,7 +477,7 @@ def memberRequestDetails(department_id,event_id):
 
 
 #获取部门内某事件成员的请假情况
-@user_bp.route('/query/history/department/<str:department_id>/<int:event_id>', methods=['GET'])
+@user_bp.route('/query/history/department/<string:department_id>/<int:event_id>', methods=['GET'])
 def query_department_leaveRequset(department_id,event_id):
     session_id=request.cookies.get('session_id')
     if not user_login_valid(session_id):
