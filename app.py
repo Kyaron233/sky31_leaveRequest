@@ -13,7 +13,7 @@ app = setup_db()
 
 app.secret_key = secrets.token_urlsafe(64)
 app.register_blueprint(admin, url_prefix='/admin')
-app.register_blueprint(user_bp, url_prefix='/user') # 未完成
+app.register_blueprint(user_bp, url_prefix='/user')
 
 
 

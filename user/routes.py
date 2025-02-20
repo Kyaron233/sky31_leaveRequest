@@ -1,10 +1,9 @@
 import json
-from asyncio import new_event_loop
+
 from datetime import datetime
 import redis
-from flask import Flask,request,session,jsonify,Blueprint,g,make_response,send_from_directory
-from werkzeug.utils import secure_filename
-import uuid
+from flask import Flask,request,session,jsonify,Blueprint,g,make_response,send_from_directory,send_file
+
 import os
 import mariadb
 import secrets
@@ -276,6 +275,7 @@ def query_leaveRequest(event_id):
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 # 获取某事件的详细信息，填写请假表
+#photo_path可能已经不再必要，在上线前确定不再需要后再移除
 @user_bp.route('/main/leaveRequest/<int:event_id>', methods=['POST'])
 def leaveRequest(event_id):
     session_id=request.cookies.get('session_id')
@@ -309,6 +309,8 @@ def leaveRequest(event_id):
         # 在需要请假材料的情况下添加请假表
         try:
             reason=request.json.get('reason')
+            if reason is None:
+                return jsonify({"message":"请填写原因"}),400
 
             # 上传图片
             # 检查是否有文件
@@ -360,7 +362,7 @@ def leaveRequest(event_id):
 
             # 返回响应
                 if errors:
-                    return jsonify({"message": "部分文件上传失败", "errors": errors, "uploaded": uploaded_files}), 400
+                    return jsonify({"message": "部分文件上传失败", "errors": errors}), 400
 
             paths_json = json.dumps(paths)
             #以上都是传图片的代码
@@ -377,6 +379,8 @@ def leaveRequest(event_id):
         # 在不需要请假材料的情况下添加请假表
         try:
             reason=request.json.get('reason')
+            if reason is None:
+                return jsonify({"message":"请填写原因"}),400
 
             g.cursor.execute("INSERT INTO whoLeave "
                              "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_amount)"
@@ -392,22 +396,25 @@ def leaveRequest(event_id):
 @user_bp.route('/query/history/delete/<int:event_id>', methods=['DELETE'])
 def delete_leaveRequest(event_id):
     session_id = request.cookies.get('session_id')
-    if not user_login_valid(session_id):
-        return jsonify({"message": "登录状态失效！"}), 401
-    student_id = redis_client_user.get(session_id)
-    #删除未审批的、自己发布的、当前事件的请假条
-    g.cursor.execute("select * from whoLeave where whoLeave_event_id=%s and whoLeave_id=%s and is_permitted = 0",(event_id,student_id))
-    event=g.cursor.fetchone()
-    if event is None:
-        return jsonify({"message": "找不到有效可删除事件"}), 400
-    else:
-        g.cursor.execute("DELETE FROM whoLeave WHERE whoLeave_event_id = %s and whoLeave_id = %s and is_permitted = 0",(event_id,student_id))
-        return jsonify({"message":"成功删除"}),200
+    try:
+        if not user_login_valid(session_id):
+            return jsonify({"message": "登录状态失效！"}), 401
+        student_id = redis_client_user.get(session_id)
+        #删除未审批的、自己发布的、当前事件的请假条
+        g.cursor.execute("select * from whoLeave where whoLeave_event_id=%s and whoLeave_id=%s and is_permitted = 0",(event_id,student_id))
+        event=g.cursor.fetchone()
+        if event is None:
+            return jsonify({"message": "找不到有效可删除事件"}), 400
+        else:
+            g.cursor.execute("DELETE FROM whoLeave WHERE whoLeave_event_id = %s and whoLeave_id = %s and is_permitted = 0",(event_id,student_id))
+            return jsonify({"message":"成功删除"}),200
+    except mariadb.Error as e:
+        return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 # 获取历史事件的概要 给行政用
 # 获取详情（包括照片等内容的时候）调用查询接口
 # 查询一个部门的所有成员
-@user_bp.route('/query/history/<str:department>')
+@user_bp.route('/query/history/<str:department>',methods=['GET'])
 def queryAllMember(department):
     session_id=request.cookies.get('session_id')
     if not user_login_valid(session_id):
@@ -477,7 +484,7 @@ def query_department_leaveRequset(department_id,event_id):
         return jsonify({"message": "登录状态失效！"}), 401
     try:
         department=department_mapping.get(department_id)
-        g.cursor.execute('select * from whoLeave where (event_department = %s OR event_department = '全中心') and whoLeave_event_id=%s',(department,event_id))
+        g.cursor.execute("select whoLeave_event,whoLeave_event_id,whoLeave_name,whoLeave_id,event_name,leave_reason,check_opinion,is_permitted,check_time from whoLeave where (event_department = %s OR event_department = '全中心') and whoLeave_event_id=%s",(department,event_id))
         events=g.cursor.fetchall()
 
         events_sorted = sorted(events, key=lambda x: x['whoLeave_order'], reverse=True)
@@ -546,7 +553,7 @@ def get_all_files(directory):
             file_paths.append(relative_path)
     return file_paths
 
-@user_bp.route('/list-files', methods=['POST'])
+@user_bp.route('/list-files', methods=['GET'])
 def list_files():
     # 从请求中获取 event_id 和 student_id
     data = request.get_json()
@@ -580,7 +587,7 @@ def serve_file(event_id, student_id, filename):
         return jsonify({"error": "禁止访问"}), 403
 
     if os.path.exists(requested_file):
-        return send_from_directory(DIR, filename)
+        return send_from_directory(DIR, filename),200
     else:
         return jsonify({"error": "未找到文件"}), 404
 
@@ -604,14 +611,14 @@ def publish():
     stu=g.cursor.fetchone()
     #到时候检查一下权限问题
     try:
-        if stu['role_in_depart'] == '正主席' or stu['role_in_depart'] == '团支书':
-            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('中心大会', '主席团例会', '部长级例会') AND isActive = 1 and department=%s ORDER BY event_date ASC",stu['department'])
+        if stu['role_in_depart'] == '正主席/团支书':
+            g.cursor.execute("SELECT event_id, event_name, event_date,event_type FROM events WHERE event_type IN ('中心大会', '主席团例会', '部长级例会') AND isActive = 1 and department=%s ORDER BY event_date ASC",stu['department'])
         elif session['role_in_depart'] == '分管主席':
-            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('分管部长例会', '部门大会') AND isActive = 1 and department=%s ORDER BY event_date ASC",stu['department'])
+            g.cursor.execute("SELECT event_id, event_name, event_date,event_type FROM events WHERE event_type IN ('分管部长例会', '部门大会') AND isActive = 1 and department=%s ORDER BY event_date ASC",stu['department'])
         elif session['role_in_depart'] == '正部长':
-            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type IN ('部长干事会议', '部门大会', '部长会议') AND isActive = 1  and department=%s ORDER BY event_date ASC",stu['department'])
+            g.cursor.execute("SELECT event_id, event_name, event_date,event_type FROM events WHERE event_type IN ('部长干事会议', '部门大会', '部长会议') AND isActive = 1  and department=%s ORDER BY event_date ASC",stu['department'])
         elif session['role_in_depart'] == '副部长':
-            g.cursor.execute("SELECT event_id, event_name, event_date FROM events WHERE event_type = '部长干事会议' AND isActive = 1  and department=%s ORDER BY event_date ASC",stu['department'])
+            g.cursor.execute("SELECT event_id, event_name, event_date,event_type FROM events WHERE event_type = '部长干事会议' AND isActive = 1  and department=%s ORDER BY event_date ASC",stu['department'])
 
         toReturnEvents = g.cursor.fetchall()
         return jsonify(toReturnEvents), 200
@@ -649,8 +656,12 @@ def patch_event(event_id):
         data = request.get_json()
         update_fields = []
         values = []
-        # 获取 session 中的 department 值
-        department = session.get('department')
+        # 获取 department 值
+        student_id=redis_client_user.get(session_id)
+        g.cursor.execute("select * from student where student_id=%s",(student_id,))
+        stu=g.cursor.fetchone()
+        department=stu['department']
+
 
         if 'event_name' in data:
             update_fields.append('event_name = %s')
@@ -715,8 +726,8 @@ def publish_more(event_id):
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
 # 审批
-@user_bp.route('/publish/<int:event_id>/<int:wholeave_id>/approve', methods=['POST'])
-def approve_leave_request(event_id,wholeave_id):
+@user_bp.route('/publish/approve/<int:event_id>/<int:student_id>', methods=['POST'])
+def approve_leave_request(event_id,student_id):
     session_id = request.cookies.get('session_id')
     if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
@@ -725,11 +736,16 @@ def approve_leave_request(event_id,wholeave_id):
         is_permitted = data.get('is_permitted')  # 1 表示同意，-1 表示拒绝
         check_opinion = data.get('check_opinion')
         check_time = datetime.now()
+        g.cursor.execute("select * from whoLeave where whoLeave_event_id = %s and whoLeave_id=%s and is_permitted=0",(event_id,student_id))
+        student=g.cursor.fetchone()
+        if student is None:
+            return jsonify({"message":"没有可以处理的事件"}),404
+
         g.cursor.execute("""
             UPDATE whoLeave 
             SET is_permitted = %s, check_opinion = %s, check_time = %s 
-            WHERE wholeave_event_id = %s and whoLeave_id=%s
-        """, (is_permitted, check_opinion, check_time, event_id,wholeave_id))
+            WHERE wholeave_event_id = %s and whoLeave_id=%s and is_permitted=0
+        """, (is_permitted, check_opinion, check_time, event_id,student_id))
 
         return jsonify({"message": "审批成功"}), 200
     except mariadb.Error as e:
