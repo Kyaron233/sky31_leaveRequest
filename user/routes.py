@@ -1,7 +1,6 @@
 import json
 from asyncio import new_event_loop
 from datetime import datetime
-
 import redis
 from flask import Flask,request,session,jsonify,Blueprint,g,make_response,send_from_directory
 from werkzeug.utils import secure_filename
@@ -38,6 +37,10 @@ def login():
     try:
         g.cursor.execute('select * from student where student_id=%s', (student_id,))
         stu=g.cursor.fetchone()
+        if stu['department'] == "行政部":
+            isXingZheng=1
+        else :
+            isXingZheng=0
         if  stu is not None:
             if(isPswdCorrect(password,stu['pswd_hash'])):
                 session_id = secrets.token_urlsafe(64)  # 随机生成 session_id
@@ -46,7 +49,7 @@ def login():
                 redis_client_user.set(session_id, stu['student_id'], ex=SESSION_EXPIRY_TIME)  # 键 值 过期时间
 
                 # 将 session_id 存储在浏览器的 cookie 中
-                response = make_response(jsonify({"message": "登录成功！"}), 200)
+                response = make_response(jsonify({"message": "登录成功！","xingzheng":isXingZheng}), 200)
                 response.set_cookie('session_id', session_id, max_age=SESSION_EXPIRY_TIME,
                                     secure=False)  # secure应在正式环境改成true
 
@@ -59,27 +62,25 @@ def login():
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
-# 用手机号鉴权
-@user_bp.route('/update_pswd', methods=['POST'])
-def update_pswd():
-    session_id = request.json.get('session_id')
-    if not user_login_valid(session_id):
-        return jsonify({"message": "登录状态失效！"}), 401
-
+# 用手机号鉴权 忘记密码
+@user_bp.route('/forget_pswd', methods=['POST'])
+def forget_pswd():
     student_id = request.json.get('student_id')
+    try:
+        g.cursor.execute('select * from student where student_id=%s', (student_id,))
+        stu=g.cursor.fetchone()
+        if request.json.get('tel') != stu['tel']:
+            return jsonify({"message":"手机号错误，修改失败!"}),400
 
-    g.cursor.execute('select * from student where student_id=%s', (student_id,))
-    stu=g.cursor.fetchone()
-    if request.json.get('tel') != stu['tel']:
-        return jsonify({"message":"手机号错误，修改失败!"}),400
-
-    new_pswd = request.json.get('new_pswd')
-    if new_pswd is None:
-        return jsonify({"message":"请输入新密码！"}),400
-    if is_valid_pswd(new_pswd):
-        pswd_hash = hash_pswd(new_pswd) # 生成新密码哈希 方法hash_pswd()得到的是一个字节字符串
-    else:
-        return jsonify({"message" : "密码不符合规则，请重新输入！"}),400
+        new_pswd = request.json.get('new_pswd')
+        if new_pswd is None:
+            return jsonify({"message":"请输入新密码！"}),400
+        if is_valid_pswd(new_pswd):
+            pswd_hash = hash_pswd(new_pswd) # 生成新密码哈希 方法hash_pswd()得到的是一个字节字符串
+        else:
+            return jsonify({"message" : "密码不符合规则，请重新输入！"}),400
+    except mariadb.Error as e:
+        return jsonify({"message": f"查询用户时数据库错误：{str(e)}"}), 500
 
 
     try:
@@ -87,7 +88,35 @@ def update_pswd():
         return jsonify({"message":"密码修改成功"}),200
 
     except mariadb.Error as e:
-        return jsonify({"message": f"数据库错误: {str(e)}"}), 500
+        return jsonify({"message": f"更新密码时数据库错误: {str(e)}"}), 500
+
+# 验证原密码 更新密码
+@user_bp.route('/update_pswd', methods=['POST'])
+def update_pswd():
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    student_id=redis_client_user.get(session_id)
+
+    try:
+        g.cursor.execute('select * from student where student_id=%s', (student_id,))
+        stu=g.cursor.fetchone()
+
+        #验证原密码
+        old_pswd = request.json.get('old_pswd')
+        if not isPswdCorrect(old_pswd,stu['pswd_hash']):
+            return jsonify({"message":"旧密码错误！"}),401
+
+        new_pswd = request.json.get('new_pswd')
+        if is_valid_pswd(new_pswd):
+            pswd_hash = hash_pswd(new_pswd)
+            g.cursor.execute('update student set pswd_hash=%s where student_id=%s', (pswd_hash,student_id))
+            return jsonify({"message":"密码已修改！"}),200
+        else:
+            return jsonify({"message":"密码不符合规则！"}),401
+    except mariadb.Error as e:
+        return jsonify({"message": f"更新密码时数据库错误: {str(e)}"}), 500
+
 
 @user_bp.route('/logout', methods=['POST', 'GET'])
 def logout():
@@ -140,13 +169,12 @@ def main():
         g.cursor.execute("select * from student where student_id=%s",(student_id,))
         stu=g.cursor.fetchone()
 
-        # 最多有七种类型的会议，用一个含有7个字典的列表来存,并使用counts_event计数
 
 
         # 获取全体事件
         g.cursor.execute(""
                          "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
-                         "FROM events WHERE event_department = '全中心' AND isActive=1 ")
+                         "FROM events WHERE event_department = '全中心'  ")
         new_events=g.cursor.fetchall()
         events_to_return = new_events
 
@@ -156,7 +184,7 @@ def main():
             # 获取主席团事件，返回一个元组
             g.cursor.execute(""
                              "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
-                             " FROM events WHERE event_type = '主席团例会' AND isActive=1 ")
+                             " FROM events WHERE event_type = '主席团例会'  ")
             new_events = g.cursor.fetchall()
             events_to_return.extend(new_events)
 
@@ -230,7 +258,7 @@ def query_leaveRequest(event_id):
         return jsonify({"message": "登录状态失效！"}), 401
     student_id = redis_client_user.get(session_id)
     try:
-        g.cursor.execute("select whoLeave_event,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount,is_permitted,check_opinion from whoLeave where student_id=%s and whoLeave_event_id",(student_id,event_id))
+        g.cursor.execute("select whoLeave_event,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount,is_permitted,check_opinion from whoLeave where student_id=%s and whoLeave_event_id=%s",(student_id,event_id))
         event = g.cursor.fetchone()
         if event is None:
             return jsonify({"message":"此事件未填写请假表"}),201
@@ -385,8 +413,12 @@ def queryAllMember(department):
     if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
     department = department_mapping.get(department)
-    g.cursor.execute("select * from student where department=%s",(department,))
+    g.cursor.execute("select name,role_in_depart,student_id from student where department=%s",(department,))
     members=g.cursor.fetchall()
+    #映射成id
+    for member in members:
+        current_role = member['role_in_depart']
+        member['role_in_depart'] = role_in_depart_mapping[current_role]
     return jsonify(members), 200
 
 # 按照学号查询
@@ -413,7 +445,7 @@ def query_by_department(department_id):
     try:
         department=department_mapping.get(department_id)
 
-        g.cursor.execute('select * from events where (event_department = %s OR event_department = '全中心')',(department,))
+        g.cursor.execute("select * from events where (event_department = %s OR event_department = '全中心')",(department,))
         events=g.cursor.fetchall()
 
         #到时候看下排序前需不需要格式化时间
@@ -421,6 +453,21 @@ def query_by_department(department_id):
         return jsonify(events_sorted), 200
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+# 按部门查询 获取某事件的详情
+# 查询某事件的某部门请假的人
+#这里一次性显示了所有该部门该事件所有请假条 如果需要查具体，则调用按照学号和事件id的那个接口来查具体
+@user_bp.route('/query/history/department/<str:department_id>/<int:event_id>', methods=['GET'])
+def memberRequestDetails(department_id,event_id):
+    session_id=request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    department=department_mapping.get(department_id)
+    g.cursor.execute("select  from whoLeave where event_id=%s and whoLeave_department=%s",(event_id,department))
+    events=g.cursor.fetchall()
+    events_sorted = sorted(events, key=lambda x: x['check_time'], reverse=True)
+    return jsonify(events_sorted), 200
+
 
 #获取部门内某事件成员的请假情况
 @user_bp.route('/query/history/department/<str:department_id>/<int:event_id>', methods=['GET'])
@@ -499,7 +546,7 @@ def get_all_files(directory):
             file_paths.append(relative_path)
     return file_paths
 
-@app.route('/list-files', methods=['POST'])
+@user_bp.route('/list-files', methods=['POST'])
 def list_files():
     # 从请求中获取 event_id 和 student_id
     data = request.get_json()
@@ -520,7 +567,7 @@ def list_files():
     return jsonify(files)
 
 # 提供访问文件的路由
-@app.route('/files/<event_id>/<student_id>/<path:filename>')
+@user_bp.route('/files/<event_id>/<student_id>/<path:filename>')
 def serve_file(event_id, student_id, filename):
     # 使用 send_from_directory 访问容器内的文件
     DIR = os.path.join(BASE_DIR, str(event_id), str(student_id))
