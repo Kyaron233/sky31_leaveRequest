@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS whoLeave(
     whoLeave_id INT NOT NULL, -- 学号
     whoLeave_name VARCHAR(255) NOT NULL,
     whoLeave_department VARCHAR(255) NOT NULL,-- 请假者的部门
-    isActive INT NOT NULL default 1 -- 后面会有个触发器与event中同步
+    isActive INT NOT NULL default 1,-- 后面会有个触发器与event中同步
 
     leave_reason VARCHAR(255) NOT NULL,-- 请假原因
     check_opinion VARCHAR(255),-- 审批意见，可以是空值
@@ -49,8 +49,8 @@ CREATE TABLE IF NOT EXISTS whoLeave(
 
 );
 
-INSERT INTO admin (admin_id,name,pswd_hash) VALUES ('admin','testAdmin',"$2b$12$mIz8BXciBPxDArvf4lNrhuPfIrwLkbFV0LrFR7M8br5MlXqwvg6Ee")-- 密码是114514
-
+INSERT INTO admin (admin_id,name,pswd_hash) VALUES ('admin','testAdmin',"$2b$12$mIz8BXciBPxDArvf4lNrhuPfIrwLkbFV0LrFR7M8br5MlXqwvg6Ee"); -- 密码是114514
+INSERT INTO student(student_id,name,isPresident,tel,department,role_in_depart,pswd_hash) VALUES ( "202405134209","乌萨奇",0,"17680251526","技术研发部","干事","$2b$12$6hxSpCHa/QlzoQ/Vzv3eFuhn4jh92I8aZoYe5roS19hMKBOi2BAoS" );
 DELIMITER $$
 
 CREATE TRIGGER update_whoLeave_isActive_after_update_events
@@ -60,7 +60,7 @@ BEGIN
     IF OLD.isActive <> NEW.isActive THEN
         UPDATE whoLeave
         SET isActive = NEW.isActive
-        WHERE related_event = NEW.event_id;
+        WHERE whoLeave_event_id = NEW.event_id;
     END IF;
 END$$
 
