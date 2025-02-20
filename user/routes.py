@@ -770,6 +770,7 @@ def publish_add():
 
     try:
         role = stu['role_in_depart']
+        department = stu['department']
         if (
             (role in ('正主席', '团支书') and etype not in ('中心大会', '主席团例会', '部长级例会')) or
             (role == '分管主席' and etype not in ('分管部长例会', '部门大会')) or
@@ -785,7 +786,6 @@ def publish_add():
                 (ename, etype, edate, '全中心',flag)
             )
         else:
-            department = session.get('department')
             g.cursor.execute(
                 "INSERT INTO events (event_name, event_type, event_date, event_department,is_photo_needed) VALUES (%s, %s, %s, %s,%s)",
                 (ename, etype, edate, department,flag)
