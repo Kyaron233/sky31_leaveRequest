@@ -760,7 +760,10 @@ def publish_add():
     student_id=redis_client_user.get(session_id)
     g.cursor.execute("select * from student where student_id=%s", (student_id,))
     stu=g.cursor.fetchone()
-
+    role = stu['role_in_depart']
+    department = stu['department']
+    if role not in('正主席', '团支书','分管主席','正部长','副部长')
+        return jsonify({"message": "权限错误,您不能发布会议"}), 403
     ename = request.json.get('event_name')
     etype = request.json.get('event_type')
     edate = request.json.get('event_date')
@@ -769,8 +772,6 @@ def publish_add():
         return jsonify({"message": "活动名称、活动类型和活动日期不能为空"}), 400
 
     try:
-        role = stu['role_in_depart']
-        department = stu['department']
         if (
             (role in ('正主席', '团支书') and etype not in ('中心大会', '主席团例会', '部长级例会')) or
             (role == '分管主席' and etype not in ('分管部长例会', '部门大会')) or
