@@ -763,7 +763,7 @@ def publish_add():
     stu=g.cursor.fetchone()
     role = stu['role_in_depart']
     department = stu['department']
-    if role not in('正主席', '团支书','分管主席','正部长','副部长')
+    if role not in('正主席', '团支书','分管主席','正部长','副部长'):
         return jsonify({"message": "权限错误,您不能发布会议"}), 403
     ename = request.json.get('event_name')
     etype = request.json.get('event_type')
