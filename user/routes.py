@@ -633,15 +633,15 @@ def publish():
             g.cursor.execute(
                 "SELECT event_id, event_name, event_date,event_type FROM events WHERE event_type IN ('中心大会', '主席团例会', '部长级例会') AND isActive = 1 and department=%s ORDER BY event_date ASC",
                 stu['department'])
-        elif session['role_in_depart'] == '分管主席':
+        elif stu['role_in_depart'] == '分管主席':
             g.cursor.execute(
                 "SELECT event_id, event_name, event_date,event_type FROM events WHERE event_type IN ('分管部长例会', '部门大会') AND isActive = 1 and department=%s ORDER BY event_date ASC",
                 stu['department'])
-        elif session['role_in_depart'] == '正部长':
+        elif stu['role_in_depart'] == '正部长':
             g.cursor.execute(
                 "SELECT event_id, event_name, event_date,event_type FROM events WHERE event_type IN ('部长干事会议', '部门大会', '部长会议') AND isActive = 1  and department=%s ORDER BY event_date ASC",
                 stu['department'])
-        elif session['role_in_depart'] == '副部长':
+        elif stu['role_in_depart'] == '副部长':
             g.cursor.execute(
                 "SELECT event_id, event_name, event_date,event_type FROM events WHERE event_type = '部长干事会议' AND isActive = 1  and department=%s ORDER BY event_date ASC",
                 stu['department'])
