@@ -4,6 +4,8 @@
 #3.其他的输入（中文汉字，中文符号等）不被接受
 
 import re
+from random import random
+
 
 def is_valid_pswd(s: str) -> bool:
     # 检查长度是否在8-16之间
@@ -19,3 +21,4 @@ def is_valid_pswd(s: str) -> bool:
         return False
 
     return True
+
