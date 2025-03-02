@@ -298,6 +298,7 @@ def leaveRequest():
     temp = g.cursor.fetchone()
     is_photo_needed = temp['is_photo_needed']
     event_name = temp['event_name']
+    event_departmemt=temp['event_depart']
 
     # 查找event_id
     try:
@@ -372,9 +373,9 @@ def leaveRequest():
             #以上都是传图片的代码
 
             g.cursor.execute("INSERT INTO whoLeave "
-                             "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount)"
-                             "VALUES (%s, %s , %s , %s, %s, %s, %s)", (event_name, event_id, stu['student_id'],
-                             stu['name'], reason, paths_json, counts_photo))
+                             "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount,whoLeave_department)"
+                             "VALUES (%s, %s , %s , %s, %s, %s, %s,%s)", (event_name, event_id, stu['student_id'],
+                             stu['name'], reason, paths_json, counts_photo,event_departmemt))
 
             return jsonify({"message": "文件上传成功"}), 200
         except mariadb.Error as e:
@@ -389,10 +390,10 @@ def leaveRequest():
                 return jsonify({"message": "请填写原因"}), 400
 
             g.cursor.execute("INSERT INTO whoLeave "
-                             "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_amount)"
-                             "VALUES (%s, %s, %s, %s, %s, %s)", (event_name, event_id, stu['student_id'],
+                             "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_amount,whoLeave_department)"
+                             "VALUES (%s, %s, %s, %s, %s, %s,%s)", (event_name, event_id, stu['student_id'],
                              stu['name'],
-                             reason, 0))
+                             reason, 0,event_departmemt))
 
             return jsonify({"message": "返回成功"}), 200
 
