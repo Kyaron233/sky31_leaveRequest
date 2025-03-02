@@ -287,7 +287,7 @@ def leaveRequest():
     stu = g.cursor.fetchone()
 
     # 获取“是否需要照片”这一参数，并获取事件名称
-    g.cursor.execute("select is_photo_needed ,event_name from event where event_id=%s", (event_id,))
+    g.cursor.execute("select is_photo_needed ,event_name from events where event_id=%s", (event_id,))
     temp = g.cursor.fetchone()
     is_photo_needed = temp['is_photo_needed']
     event_name = temp['event_name']

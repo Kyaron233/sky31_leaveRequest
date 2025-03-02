@@ -197,7 +197,7 @@ def upload_excel():
                         """
         data_to_insert = list(excel_to_add.itertuples(index=False, name=None))
         g.cursor.executemany(insert_query, data_to_insert)
-        g.cursor.execute('UPDATE student SET isPresident = 1 WHERE role_in_depart = %s', ("部门主管",))
+        g.cursor.execute('UPDATE student SET isPresident = 1 WHERE role_in_depart = %s', ("分管主席",))
         g.conn.commit()
         return jsonify({"message": "上传成功"}),200
     except mariadb.Error as e:
