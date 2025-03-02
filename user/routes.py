@@ -299,7 +299,7 @@ def leaveRequest():
             (stu['department'], event_id))
         found_event = g.cursor.fetchone()
 
-        if found_event is not None:
+        if found_event is None:
             return jsonify({"message": "未找到匹配的事件"})
 
     except mariadb.Error as e:
