@@ -373,12 +373,13 @@ def leaveRequest():
 
             g.cursor.execute("INSERT INTO whoLeave "
                              "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount)"
-                             "VALUES (%s, %s , %s , %s, %s, %s, %s)", event_name, event_id, stu['student_id'],
-                             stu['name'], reason, paths_json, counts_photo)
+                             "VALUES (%s, %s , %s , %s, %s, %s, %s)", (event_name, event_id, stu['student_id'],
+                             stu['name'], reason, paths_json, counts_photo))
 
             return jsonify({"message": "文件上传成功"}), 200
         except mariadb.Error as e:
             return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
 
     else:
         # 在不需要请假材料的情况下添加请假表
@@ -389,9 +390,9 @@ def leaveRequest():
 
             g.cursor.execute("INSERT INTO whoLeave "
                              "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_amount)"
-                             "VALUES (%s, %s, %s, %s, %s, %s)", event_name, event_id, stu['student_id'],
+                             "VALUES (%s, %s, %s, %s, %s, %s)", (event_name, event_id, stu['student_id'],
                              stu['name'],
-                             reason, 0)
+                             reason, 0))
 
             return jsonify({"message": "返回成功"}), 200
 
