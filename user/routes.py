@@ -382,7 +382,7 @@ def leaveRequest():
 
             g.cursor.execute("INSERT INTO whoLeave "
                              "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_amount)"
-                             "VALUES (%s, %s, %s, %s, %s, %s, %s)", event_name, event_id, stu['student_id'],
+                             "VALUES (%s, %s, %s, %s, %s, %s)", event_name, event_id, stu['student_id'],
                              stu['name'],
                              reason, 0)
 
