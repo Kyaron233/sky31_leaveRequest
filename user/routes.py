@@ -298,7 +298,7 @@ def leaveRequest():
     temp = g.cursor.fetchone()
     is_photo_needed = temp['is_photo_needed']
     event_name = temp['event_name']
-    event_departmemt=temp['event_depart']
+    event_departmemt=temp['event_department']
 
     # 查找event_id
     try:
