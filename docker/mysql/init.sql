@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS whoLeave(
     whoLeave_event VARCHAR(255),-- 对应请假的事件
     whoLeave_event_id INT NOT NULL,-- 对应event_id
     whoLeave_order INT AUTO_INCREMENT PRIMARY KEY,-- 请假者的次序，用于在用户提交针对同一事件的新请假表时，删除较久的请假表
-    whoLeave_id INT NOT NULL, -- 学号
+    whoLeave_id VARCHAR(255) NOT NULL, -- 学号
     whoLeave_name VARCHAR(255) NOT NULL,
     whoLeave_department VARCHAR(255) NOT NULL,-- 请假者的部门
     isActive INT NOT NULL default 1,-- 后面会有个触发器与event中同步
