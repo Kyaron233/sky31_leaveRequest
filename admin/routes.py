@@ -115,7 +115,7 @@ def add_user():
         pswd_hash=hash_pswd(password)
 
         g.cursor.execute('INSERT INTO student (student_id,name,tel,department,role_in_depart,pswd_hash) VALUES (%s,%s,%s,%s,%s,%s)',(student_id,name,tel,department,role_in_depart,pswd_hash))
-        g.cursor.execute('UPDATE student SET isPresident = 1 WHERE role_in_depart = %s', ("部门主管",))
+        g.cursor.execute('UPDATE student SET isPresident = 1 WHERE role_in_depart = %s', ("分管主席",))
         return jsonify({"message":"添加成功"}),200
     except mariadb.Error as e:
         return jsonify({"error": f"数据库错误：{str(e)}","message":"请检查输入参数的内容和数量是否合法！"}), 500
