@@ -166,7 +166,8 @@ def main():
                          "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
                          "FROM events WHERE event_department = '全中心'  ")
         new_events = g.cursor.fetchall()
-        events_to_return = new_events
+        if new_events is not None:
+            events_to_return = new_events
 
         # 主席团例会
         if stu['department'] == "主席团" or stu['isPresident'] == 1:
