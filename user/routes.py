@@ -176,7 +176,8 @@ def main():
                              "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
                              " FROM events WHERE event_type = '主席团例会'  ")
             new_events = g.cursor.fetchall()
-            events_to_return.extend(new_events)
+            if new_events is not None:
+                events_to_return.extend(new_events)
 
         # 部门大会
         if stu['department'] != "主席团":
@@ -185,7 +186,8 @@ def main():
                              "FROM events WHERE event_type = '部门大会' AND event_department = %s ",
                              (stu['department'],))
             new_events = g.cursor.fetchall()
-            events_to_return.extend(new_events)
+            if new_events is not None:
+                events_to_return.extend(new_events)
 
         # 部长级例会
         if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长" or stu[
@@ -195,7 +197,8 @@ def main():
                 "FROM events WHERE event_type = '部长级例会'AND event_department = %s ",
                 (stu['department'],))
             new_events = g.cursor.fetchall()
-            events_to_return.extend(new_events)
+            if new_events is not None:
+                events_to_return.extend(new_events)
 
         # 部长会议
         if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长":
@@ -204,7 +207,8 @@ def main():
                 "FROM events WHERE event_type = '部长会议'  AND event_department = %s ",
                 (stu['department'],))
             new_events = g.cursor.fetchall()
-            events_to_return.extend(new_events)
+            if new_events is not None:
+                events_to_return.extend(new_events)
 
         # 部长干事会议
         if stu['department'] != "主席团" and stu['isPresident'] == 0:
@@ -213,7 +217,8 @@ def main():
                 "FROM events WHERE event_type = '部长干事会议'  AND event_department = %s ",
                 (stu['department'],))
             new_events = g.cursor.fetchall()
-            events_to_return.extend(new_events)
+            if new_events is not None:
+                events_to_return.extend(new_events)
 
             # 到时候看下排序前需不需要格式化时间
             # 按照event_date（即先后顺序）排序后返回
