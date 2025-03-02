@@ -166,8 +166,7 @@ def main():
                          "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
                          "FROM events WHERE event_department = '全中心'  ")
         new_events = g.cursor.fetchall()
-        if new_events is not None:
-            events_to_return = new_events
+        events_to_return = new_events
 
         # 主席团例会
         if stu['department'] == "主席团" or stu['isPresident'] == 1:
@@ -222,8 +221,10 @@ def main():
 
             # 到时候看下排序前需不需要格式化时间
             # 按照event_date（即先后顺序）排序后返回
-            events_to_return_sorted = sorted(events_to_return, key=lambda x: x['event_date'],
-                                             reverse=True)  # event_date,反过来排序，时间越晚越靠前
+            events_to_return_sorted = sorted(
+                [event for event in events_to_return if event['event_date'] is not None],
+                key=lambda x: x['event_date'],reverse=True
+            )
 
             # 遍历列表，找到第一个时间超过当前时间的事件
             for index, event in enumerate(events_to_return_sorted):
