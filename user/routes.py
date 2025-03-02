@@ -39,7 +39,7 @@ def login():
             if (isPswdCorrect(password, stu['pswd_hash'])):
                 session_id = secrets.token_urlsafe(64)  # 随机生成 session_id
 
-                department = department_mapping_reverse.get(stu['department'])
+                department = stu['department']
                 # 将 session_id 和用户关联存储到 Redis 中，设置过期时间
                 redis_client_user.set(session_id, stu['student_id'], ex=SESSION_EXPIRY_TIME)  # 键 值 过期时间
 
@@ -295,7 +295,7 @@ def leaveRequest():
     # 查找event_id
     try:
         g.cursor.execute(
-            "SELECT * from events WHERE isActive = 1 AND (event_department = %s OR event_department = ‘全中心’) AND event_id =%s",
+            "SELECT * from events WHERE isActive = 1 AND (event_department = %s OR event_department = '全中心') AND event_id =%s",
             (stu['department'], event_id))
         found_event = g.cursor.fetchone()
 
