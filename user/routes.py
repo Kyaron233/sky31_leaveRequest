@@ -270,7 +270,7 @@ def query_leaveRequest(event_id):
                 return jsonify({"event": event['whoLeave_event'],
                                 "whoLeave_id": event['whoLeave_id'],
                                 "whoLeave_name": event['whoLeave_name'],
-                                "whoLeave_reason": event['whoLeave_reason'],
+                                "whoLeave_reason": event['leave_reason'],
                                 'is_permitted': event['is_permitted'],
                                 'check_opinion': event['check_opinion'],
                                 'photo_amount': event['photo_amount']}), 200
@@ -524,7 +524,7 @@ def queryHistory_self():
 
     student_id = redis_client_user.get(session_id)
     g.cursor.execute(
-        'select event_name,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s',
+        'select whoLeave_event,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s',
         (student_id,))
     events = g.cursor.fetchall()
 
