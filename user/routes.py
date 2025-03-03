@@ -259,7 +259,7 @@ def query_leaveRequest(event_id):
     student_id = redis_client_user.get(session_id)
     try:
         g.cursor.execute(
-            "select whoLeave_event,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount,is_permitted,check_opinion from whoLeave where student_id=%s and whoLeave_event_id=%s",
+            "select whoLeave_event,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount,is_permitted,check_opinion from whoLeave where whoLeave_id=%s and whoLeave_event_id=%s",
             (student_id, event_id))
         event = g.cursor.fetchone()
         if event is None:
