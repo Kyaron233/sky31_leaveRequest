@@ -452,7 +452,7 @@ def queryHistory(student_id):
         return jsonify({"message": "登录状态失效！"}), 401
 
     g.cursor.execute(
-        'select event_name,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s',
+        'select whoLeave_event_name,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s',
         (student_id,))
     events = g.cursor.fetchall()
 
@@ -491,7 +491,7 @@ def memberRequestDetails(department_id, event_id):
     if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
     department = department_mapping.get(department_id)
-    g.cursor.execute("select * from whoLeave where event_id=%s and whoLeave_department=%s", (event_id, department))
+    g.cursor.execute("select * from whoLeave where whoLeave_event_id=%s and whoLeave_department=%s", (event_id, department))
     events = g.cursor.fetchall()
     events_sorted = sorted(events, key=lambda x: x['check_time'], reverse=True)
     return jsonify(events_sorted), 200
