@@ -452,7 +452,7 @@ def queryHistory(student_id):
         return jsonify({"message": "登录状态失效！"}), 401
 
     g.cursor.execute(
-        'select whoLeave_event_name,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s',
+        'select whoLeave_event,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s',
         (student_id,))
     events = g.cursor.fetchall()
 
@@ -531,6 +531,7 @@ def queryHistory_self():
     events = g.cursor.fetchall()
 
     #到时候看下排序前需不需要格式化时间
+    #这里按照审批时间排序会导致错误 不知道要怎么办
     events_sorted = sorted(events, key=lambda x: x['check_time'], reverse=True)
     return jsonify(events_sorted), 200
 
