@@ -672,7 +672,7 @@ def delete_event(event_id):
     #前端根据登录用户的职位来做是否显示删除按钮的逻辑
     try:
         g.cursor.execute("DELETE FROM events WHERE event_id = %s", (event_id,))
-        g.cursor.execute("DELETE FROM wholeave WHERE whoLeave_event_id = %s", (event_id,))
+        g.cursor.execute("DELETE FROM whoLeave WHERE whoLeave_event_id = %s", (event_id,))
         if g.cursor.rowcount > 0:
             return jsonify({"message": "活动删除成功"}), 200
         else:
@@ -748,7 +748,7 @@ def publish_more(event_id):
                          "SELECT * FROM events WHERE event_id = %s", (eid,))
         event = g.cursor.fetchone()
         g.cursor.execute(""
-                         "SELECT wholeave_name,wholeave_order,is_permitted,photo_amount FROM wholeave where related_event = %s ORDER BY wholeave_order ASC",
+                         "SELECT whoLeave_name,whoLeave_order,is_permitted,photo_amount FROM whoLeave where related_event = %s ORDER BY whoLeave_order ASC",
                          (eid,))
         leaver = g.cursor.fetchall()
         is_photo_needed = any(item['photo_amount'] for item in leaver)  #遍历 （但是其实这里应该都是同一个布尔值，要么没照片都是0，要么有照片，此时布尔值为true）
@@ -784,7 +784,7 @@ def approve_leave_request():
         g.cursor.execute("""
             UPDATE whoLeave 
             SET is_permitted = %s, check_opinion = %s, check_time = %s 
-            WHERE wholeave_event_id = %s and whoLeave_id=%s and is_permitted=0
+            WHERE whoLeave_event_id = %s and whoLeave_id=%s and is_permitted=0
         """, (is_permitted, check_opinion, check_time, event_id, student_id))
 
         return jsonify({"message": "审批成功"}), 200
