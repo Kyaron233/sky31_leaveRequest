@@ -136,9 +136,8 @@ def info():
     try:
         g.cursor.execute("select * from student where student_id=%s", (student_id,))
         stu = g.cursor.fetchone()
-        department = department_mapping_reverse.get(stu['department'])
         if stu is not None:
-            return jsonify({"name": stu['name'], "student_id": stu['student_id'], "department": department}), 200
+            return jsonify({"name": stu['name'], "student_id": stu['student_id'], "department": stu['department']}), 200
         else:
             return jsonify({"message": "未找到用户信息"}), 404
 
@@ -641,22 +640,25 @@ def publish():
         if stu['role_in_depart'] == '正主席/团支书':
             g.cursor.execute(
                 "SELECT event_id, event_name, event_date,event_type FROM events WHERE event_type IN ('中心大会', '主席团例会', '部长级例会') AND isActive = 1 and department=%s ORDER BY event_date ASC",
-                stu['department'])
+                (stu['department'],))
         elif stu['role_in_depart'] == '分管主席':
             g.cursor.execute(
                 "SELECT event_id, event_name, event_date,event_type FROM events WHERE event_type IN ('分管部长例会', '部门大会') AND isActive = 1 and department=%s ORDER BY event_date ASC",
-                stu['department'])
+                (stu['department'],))
         elif stu['role_in_depart'] == '正部长':
             g.cursor.execute(
                 "SELECT event_id, event_name, event_date,event_type FROM events WHERE event_type IN ('部长干事会议', '部门大会', '部长会议') AND isActive = 1  and department=%s ORDER BY event_date ASC",
-                stu['department'])
+                (stu['department'],))
         elif stu['role_in_depart'] == '副部长':
             g.cursor.execute(
                 "SELECT event_id, event_name, event_date,event_type FROM events WHERE event_type = '部长干事会议' AND isActive = 1  and department=%s ORDER BY event_date ASC",
-                stu['department'])
+                (stu['department'],))
 
         toReturnEvents = g.cursor.fetchall()
-        return jsonify(toReturnEvents), 200
+        if toReturnEvents is not None:
+            return jsonify(toReturnEvents), 200
+        else:
+            return jsonify({"message":"没有可返回事件！"})
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
