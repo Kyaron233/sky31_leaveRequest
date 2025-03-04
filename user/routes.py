@@ -295,6 +295,8 @@ def leaveRequest():
     # 获取“是否需要照片”这一参数，并获取事件名称
     g.cursor.execute("select is_photo_needed ,event_name,event_department from events where event_id=%s", (event_id,))
     temp = g.cursor.fetchone()
+    if temp is None:
+        return jsonify({"message":"事件不存在!"}),404
     is_photo_needed = temp['is_photo_needed']
     event_name = temp['event_name']
     event_departmemt=temp['event_department']
@@ -387,6 +389,11 @@ def leaveRequest():
             reason = request.json.get('reason')
             if reason is None:
                 return jsonify({"message": "请填写原因"}), 400
+            # 更新请假表也用这个接口 下面这段代码检测是否已有请假记录 如果有的话删掉原来的
+            g.cursor.execute("select * from whoLeave where whoLeave_event_id=%s AND whoLeave_id=%s", (event_id,student_id))
+            found_event = g.cursor.fetchone()
+            if found_event is not None:
+                g.cursor.execute("delete from whoLeave where whoLeave_event_id=%s AND whoLeave_id=%s", (event_id,student_id))
 
             g.cursor.execute("INSERT INTO whoLeave "
                              "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_amount,whoLeave_department)"
@@ -434,10 +441,6 @@ def queryAllMember(department):
     department = department_mapping.get(department)
     g.cursor.execute("select name,role_in_depart,student_id from student where department=%s", (department,))
     members = g.cursor.fetchall()
-    #映射成id
-    for member in members:
-        current_role = member['role_in_depart']
-        member['role_in_depart'] = role_in_depart_mapping[current_role]
     return jsonify(members), 200
 
 
