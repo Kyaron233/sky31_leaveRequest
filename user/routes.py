@@ -752,7 +752,7 @@ def publish_more(event_id):
                          "SELECT * FROM events WHERE event_id = %s", (eid,))
         event = g.cursor.fetchone()
         g.cursor.execute(""
-                         "SELECT whoLeave_name,whoLeave_order,is_permitted,photo_amount FROM whoLeave where related_event = %s ORDER BY whoLeave_order ASC",
+                         "SELECT whoLeave_name,whoLeave_order,is_permitted,photo_amount FROM whoLeave where whoLeave_event_id = %s ORDER BY whoLeave_order ASC",
                          (eid,))
         leaver = g.cursor.fetchall()
         is_photo_needed = any(item['photo_amount'] for item in leaver)  #遍历 （但是其实这里应该都是同一个布尔值，要么没照片都是0，要么有照片，此时布尔值为true）
