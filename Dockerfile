@@ -25,4 +25,5 @@ ENV FLASK_APP=app/app.py
 ENV FLASK_ENV=production
 
 # 配置 Gunicorn 启动命令
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app:app"]
+# 增加worker，延长超时时间，以尝试避免socket hang up
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120", "app:app"]
