@@ -4,7 +4,7 @@ services:
   web:
     build: .
     ports:
-      - "8000:8000" # 更改为http默认端口
+      - "8000:8000"
     depends_on:
       - db
     environment:
@@ -13,7 +13,8 @@ services:
   db:
     image: mariadb:latest
     volumes:
-      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql  # 初始化 SQL（仅第一次有效）
+      - db_data:/var/lib/mysql   # 持久化 MariaDB 数据
     environment:
       MYSQL_ROOT_PASSWORD: sky31admin
       MYSQL_DATABASE: sky31Employees
@@ -22,3 +23,7 @@ services:
 
   redis:
     image: redis:latest
+
+
+volumes:
+  db_data:
