@@ -39,7 +39,7 @@ def login():
             if (isPswdCorrect(password, stu['pswd_hash'])):
                 session_id = secrets.token_urlsafe(64)  # 随机生成 session_id
 
-                department = stu['department']
+                department = department_mapping.get[stu['department']]
                 # 将 session_id 和用户关联存储到 Redis 中，设置过期时间
                 redis_client_user.set(session_id, stu['student_id'], ex=SESSION_EXPIRY_TIME)  # 键 值 过期时间
 
