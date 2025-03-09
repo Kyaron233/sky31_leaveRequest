@@ -39,12 +39,13 @@ def login():
             if (isPswdCorrect(password, stu['pswd_hash'])):
                 session_id = secrets.token_urlsafe(64)  # 随机生成 session_id
 
+                department_name=stu['department']
                 department = department_mapping_reverse.get(stu['department'])
                 # 将 session_id 和用户关联存储到 Redis 中，设置过期时间
                 redis_client_user.set(session_id, stu['student_id'], ex=SESSION_EXPIRY_TIME)  # 键 值 过期时间
 
                 # 将 session_id 存储在浏览器的 cookie 中
-                response = make_response(jsonify({"message": "登录成功！", "department": department}), 200)
+                response = make_response(jsonify({"message": "登录成功！", "department": department,"department_name":department_name}), 200)
                 response.set_cookie('session_id', session_id, max_age=SESSION_EXPIRY_TIME,
                                     secure=False)  # secure应在正式环境改成true
 
@@ -154,11 +155,21 @@ def main():
         return jsonify({"message": "登录状态失效！"}), 401
 
     student_id = redis_client_user.get(session_id)
+    event_id=request.args.get('event_id')
 
     try:
         # 获取当前登录的用户信息 根据部门、职位来返回事件
         g.cursor.execute("select * from student where student_id=%s", (student_id,))
         stu = g.cursor.fetchone()
+
+        # 如果有指定id，那就搜索指定的id的事件
+        if event_id is not None:
+            g.cursor.execute(""
+                             "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
+                             "FROM events WHERE event_id=%s ",(event_id,))
+            new_event = g.cursor.fetchone()
+            return jsonify(new_event), 200
+
 
         # 获取全体事件
         g.cursor.execute(""
@@ -528,7 +539,18 @@ def queryHistory_self():
     if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
 
+
     student_id = redis_client_user.get(session_id)
+
+    #如果有指定id，就返回指定id的事件
+    event_id=request.args.get('event_id')
+    if event_id is not None:
+        g.cursor.execute(
+            'select whoLeave_event,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s and whoLeave_event_id=%s',
+            (student_id,event_id))
+        events = g.cursor.fetchone()
+        return jsonify(events), 200
+
     g.cursor.execute(
         'select whoLeave_event,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s',
         (student_id,))
