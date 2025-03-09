@@ -457,6 +457,7 @@ def queryHistory(student_id):
     events = g.cursor.fetchall()
 
     # 按时间排序 到时候看下排序前需不需要格式化时间
+    # 到时候把这里注释掉吧 好像有问题
     events_sorted = sorted(events, key=lambda x: x['check_time'], reverse=True)
     return jsonify(events_sorted), 200
 
@@ -485,11 +486,14 @@ def query_by_department(department_id):
 # 按部门查询 获取某事件的详情
 # 查询某事件的某部门请假的人
 #这里一次性显示了所有该部门该事件所有请假条 如果需要查具体，则调用按照学号和事件id的那个接口来查具体
-@user_bp.route('/query/history/department/<string:department_id>/<int:event_id>', methods=['GET'])
+@user_bp.route('/query/history/department', methods=['GET'])
 def memberRequestDetails(department_id, event_id):
     session_id = request.cookies.get('session_id')
     if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
+    # 把部门和事件改成了query
+    department_id=request.args.get('department_id')
+    event_id=request.args.get('event_id')
     department = department_mapping.get(department_id)
     g.cursor.execute("select * from whoLeave where whoLeave_event_id=%s and whoLeave_department=%s", (event_id, department))
     events = g.cursor.fetchall()
