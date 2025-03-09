@@ -10,7 +10,7 @@ import secrets
 
 import user
 from packages import is_valid_pswd, hash_pswd, isPswdCorrect, convert_dict, role_in_depart_mapping, department_mapping, \
-    department_mapping_reverse
+    department_mapping_reverse, role_in_depart_mapping_reverse
 
 #上传照片的参数
 ALLOWED_EXTENSIONS = {'jpg,jpeg,png,webp,heic'}
@@ -39,13 +39,15 @@ def login():
             if (isPswdCorrect(password, stu['pswd_hash'])):
                 session_id = secrets.token_urlsafe(64)  # 随机生成 session_id
 
-                department_name=stu['department']
+                department_name = stu['department']
                 department = department_mapping_reverse.get(stu['department'])
                 # 将 session_id 和用户关联存储到 Redis 中，设置过期时间
                 redis_client_user.set(session_id, stu['student_id'], ex=SESSION_EXPIRY_TIME)  # 键 值 过期时间
 
                 # 将 session_id 存储在浏览器的 cookie 中
-                response = make_response(jsonify({"message": "登录成功！", "department": department,"department_name":department_name}), 200)
+                response = make_response(
+                    jsonify({"message": "登录成功！", "department": department, "department_name": department_name}),
+                    200)
                 response.set_cookie('session_id', session_id, max_age=SESSION_EXPIRY_TIME,
                                     secure=False)  # secure应在正式环境改成true
 
@@ -155,7 +157,7 @@ def main():
         return jsonify({"message": "登录状态失效！"}), 401
 
     student_id = redis_client_user.get(session_id)
-    event_id=request.args.get('event_id')
+    event_id = request.args.get('event_id')
 
     try:
         # 获取当前登录的用户信息 根据部门、职位来返回事件
@@ -164,97 +166,99 @@ def main():
 
         # 如果有指定id，那就搜索指定的id的事件
         if event_id is not None:
+            event_id=int(event_id)
             g.cursor.execute(""
                              "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
-                             "FROM events WHERE event_id=%s ",(event_id,))
+                             "FROM events WHERE event_id=%s ", (event_id,))
             new_event = g.cursor.fetchone()
             return jsonify(new_event), 200
 
-
-        # 获取全体事件
-        g.cursor.execute(""
-                         "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
-                         "FROM events WHERE event_department = '全中心'  ")
-        new_events = g.cursor.fetchall()
-        events_to_return = new_events
-
-        # 主席团例会
-        if stu['department'] == "主席团" or stu['isPresident'] == 1:
-            # 获取主席团事件，返回一个元组
+        # 没有指定id，获取全部事件
+        else:
+            # 获取全体事件
             g.cursor.execute(""
                              "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
-                             " FROM events WHERE event_type = '主席团例会'  ")
+                             "FROM events WHERE event_department = '全中心'  ")
             new_events = g.cursor.fetchall()
-            if new_events is not None:
-                events_to_return.extend(new_events)
+            events_to_return = new_events
 
-        # 部门大会
-        if stu['department'] != "主席团":
-            g.cursor.execute(""
-                             "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
-                             "FROM events WHERE event_type = '部门大会' AND event_department = %s ",
-                             (stu['department'],))
-            new_events = g.cursor.fetchall()
-            if new_events is not None:
-                events_to_return.extend(new_events)
+            # 主席团例会
+            if stu['department'] == "主席团" or stu['isPresident'] == 1:
+                # 获取主席团事件，返回一个元组
+                g.cursor.execute(""
+                                 "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
+                                 " FROM events WHERE event_type = '主席团例会'  ")
+                new_events = g.cursor.fetchall()
+                if new_events is not None:
+                    events_to_return.extend(new_events)
 
-        # 部长级例会
-        if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长" or stu[
-            'role_in_depart'] == "分管主席":
-            g.cursor.execute(
-                "SELECT event_id,event_name,event_type,event_date,event_department,isActive "
-                "FROM events WHERE event_type = '部长级例会'AND event_department = %s ",
-                (stu['department'],))
-            new_events = g.cursor.fetchall()
-            if new_events is not None:
-                events_to_return.extend(new_events)
+            # 部门大会
+            if stu['department'] != "主席团":
+                g.cursor.execute(""
+                                 "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
+                                 "FROM events WHERE event_type = '部门大会' AND event_department = %s ",
+                                 (stu['department'],))
+                new_events = g.cursor.fetchall()
+                if new_events is not None:
+                    events_to_return.extend(new_events)
 
-        # 部长会议
-        if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长":
-            g.cursor.execute(
-                "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
-                "FROM events WHERE event_type = '部长会议'  AND event_department = %s ",
-                (stu['department'],))
-            new_events = g.cursor.fetchall()
-            if new_events is not None:
-                events_to_return.extend(new_events)
+            # 部长级例会
+            if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长" or stu[
+                'role_in_depart'] == "分管主席":
+                g.cursor.execute(
+                    "SELECT event_id,event_name,event_type,event_date,event_department,isActive "
+                    "FROM events WHERE event_type = '部长级例会'AND event_department = %s ",
+                    (stu['department'],))
+                new_events = g.cursor.fetchall()
+                if new_events is not None:
+                    events_to_return.extend(new_events)
 
-        # 部长干事会议
-        if stu['department'] != "主席团" and stu['isPresident'] == 0:
-            g.cursor.execute(
-                "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
-                "FROM events WHERE event_type = '部长干事会议'  AND event_department = %s ",
-                (stu['department'],))
-            new_events = g.cursor.fetchall()
-            if new_events is not None:
-                events_to_return.extend(new_events)
+            # 部长会议
+            if stu['role_in_depart'] == "正部长" or stu['role_in_depart'] == "副部长":
+                g.cursor.execute(
+                    "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
+                    "FROM events WHERE event_type = '部长会议'  AND event_department = %s ",
+                    (stu['department'],))
+                new_events = g.cursor.fetchall()
+                if new_events is not None:
+                    events_to_return.extend(new_events)
 
-            # 到时候看下排序前需不需要格式化时间
-            # 按照event_date（即先后顺序）排序后返回
-            events_to_return_sorted = sorted(
-                [event for event in events_to_return if event['event_date'] is not None],
-                key=lambda x: x['event_date'],reverse=True
-            )
+            # 部长干事会议
+            if stu['department'] != "主席团" and stu['isPresident'] == 0:
+                g.cursor.execute(
+                    "SELECT event_id,event_name,event_type,event_date,event_department,isActive,is_photo_needed "
+                    "FROM events WHERE event_type = '部长干事会议'  AND event_department = %s ",
+                    (stu['department'],))
+                new_events = g.cursor.fetchall()
+                if new_events is not None:
+                    events_to_return.extend(new_events)
 
-            # 遍历列表，找到第一个时间超过当前时间的事件
-            for index, event in enumerate(events_to_return_sorted):
-                #event_time = datetime.strptime(event['event_date'], '%Y-%m-%d %H:%M:%S',)  # 根据日期时间格式进行解析
-                event_time = event['event_date']  # 这里似乎不需要解析
-                if event['isActive'] == 0:  # 说明事件已经被标记为过期，那么后续事件也已经被标记为过期,此时则不需要执行
-                    break
+                # 到时候看下排序前需不需要格式化时间
+                # 按照event_date（即先后顺序）排序后返回
+                events_to_return_sorted = sorted(
+                    [event for event in events_to_return if event['event_date'] is not None],
+                    key=lambda x: x['event_date'], reverse=True
+                )
 
-                # 找到过期时间，因为排序了所以从找到的第一个过期的事件
-                if event_time < datetime.now():
-                    for subsequent_event in events_to_return_sorted[index:]:
-                        if subsequent_event['isActive'] == 0:  #找到过期时间后break
-                            break
-                        subsequent_event['isActive'] = 0
-                        subsequent_invalid_id = subsequent_event['event_id']
-                        g.cursor.execute(
-                            "UPDATE events SET isActive = 0 WHERE isActive = 1 AND event_id = %s",
-                            (subsequent_invalid_id,)
-                        )
-            return jsonify(events_to_return_sorted), 200
+                # 遍历列表，找到第一个时间超过当前时间的事件
+                for index, event in enumerate(events_to_return_sorted):
+                    #event_time = datetime.strptime(event['event_date'], '%Y-%m-%d %H:%M:%S',)  # 根据日期时间格式进行解析
+                    event_time = event['event_date']  # 这里似乎不需要解析
+                    if event['isActive'] == 0:  # 说明事件已经被标记为过期，那么后续事件也已经被标记为过期,此时则不需要执行
+                        break
+
+                    # 找到过期时间，因为排序了所以从找到的第一个过期的事件
+                    if event_time < datetime.now():
+                        for subsequent_event in events_to_return_sorted[index:]:
+                            if subsequent_event['isActive'] == 0:  #找到过期时间后break
+                                break
+                            subsequent_event['isActive'] = 0
+                            subsequent_invalid_id = subsequent_event['event_id']
+                            g.cursor.execute(
+                                "UPDATE events SET isActive = 0 WHERE isActive = 1 AND event_id = %s",
+                                (subsequent_invalid_id,)
+                            )
+                return jsonify(events_to_return_sorted), 200
 
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误{str(e)}"}), 500
@@ -307,10 +311,11 @@ def leaveRequest():
     g.cursor.execute("select is_photo_needed ,event_name,event_department from events where event_id=%s", (event_id,))
     temp = g.cursor.fetchone()
     if temp is None:
-        return jsonify({"message":"事件不存在!"}),404
+        return jsonify({"message": "事件不存在!"}), 404
     is_photo_needed = temp['is_photo_needed']
     event_name = temp['event_name']
-    event_departmemt=temp['event_department']
+    event_departmemt = temp['event_department']
+    role_id = role_in_depart_mapping_reverse.get(stu['department'])
 
     # 查找event_id
     try:
@@ -385,9 +390,10 @@ def leaveRequest():
             #以上都是传图片的代码
 
             g.cursor.execute("INSERT INTO whoLeave "
-                             "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount,whoLeave_department)"
-                             "VALUES (%s, %s , %s , %s, %s, %s, %s,%s)", (event_name, event_id, stu['student_id'],
-                             stu['name'], reason, paths_json, counts_photo,event_departmemt))
+                             "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount,whoLeave_department,whoLeave_role)"
+                             "VALUES (%s, %s , %s , %s, %s, %s, %s,%s,%s)", (event_name, event_id, stu['student_id'],
+                                                                             stu['name'], reason, paths_json,
+                                                                             counts_photo, event_departmemt, role_id))
 
             return jsonify({"message": "文件上传成功"}), 200
         except mariadb.Error as e:
@@ -401,16 +407,18 @@ def leaveRequest():
             if reason is None:
                 return jsonify({"message": "请填写原因"}), 400
             # 更新请假表也用这个接口 下面这段代码检测是否已有请假记录 如果有的话删掉原来的
-            g.cursor.execute("select * from whoLeave where whoLeave_event_id=%s AND whoLeave_id=%s", (event_id,student_id))
+            g.cursor.execute("select * from whoLeave where whoLeave_event_id=%s AND whoLeave_id=%s",
+                             (event_id, student_id))
             found_event = g.cursor.fetchone()
             if found_event is not None:
-                g.cursor.execute("delete from whoLeave where whoLeave_event_id=%s AND whoLeave_id=%s", (event_id,student_id))
+                g.cursor.execute("delete from whoLeave where whoLeave_event_id=%s AND whoLeave_id=%s",
+                                 (event_id, student_id))
 
             g.cursor.execute("INSERT INTO whoLeave "
-                             "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_amount,whoLeave_department)"
-                             "VALUES (%s, %s, %s, %s, %s, %s,%s)", (event_name, event_id, stu['student_id'],
-                             stu['name'],
-                             reason, 0,event_departmemt))
+                             "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_amount,whoLeave_department,whoLeave_role)"
+                             "VALUES (%s, %s, %s, %s, %s, %s,%s,%s)", (event_name, event_id, stu['student_id'],
+                                                                       stu['name'],
+                                                                       reason, 0, event_departmemt, role_id))
 
             return jsonify({"message": "返回成功"}), 200
 
@@ -503,10 +511,11 @@ def memberRequestDetails():
     if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
     # 把部门和事件改成了query
-    department_id=request.args.get('department_id')
-    event_id=request.args.get('event_id')
+    department_id = request.args.get('department_id')
+    event_id = request.args.get('event_id')
     department = department_mapping.get(department_id)
-    g.cursor.execute("select * from whoLeave where whoLeave_event_id=%s and whoLeave_department=%s", (event_id, department))
+    g.cursor.execute("select * from whoLeave where whoLeave_event_id=%s and whoLeave_department=%s",
+                     (event_id, department))
     events = g.cursor.fetchall()
     #events_sorted = sorted(events, key=lambda x: x['check_time'], reverse=True)
     return jsonify(events), 200
@@ -539,27 +548,27 @@ def queryHistory_self():
     if not user_login_valid(session_id):
         return jsonify({"message": "登录状态失效！"}), 401
 
-
     student_id = redis_client_user.get(session_id)
 
     #如果有指定id，就返回指定id的事件
-    event_id=request.args.get('event_id')
+    event_id = request.args.get('event_id')
     if event_id is not None:
+        event_id=int(event_id)
         g.cursor.execute(
-            'select whoLeave_event,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s and whoLeave_event_id=%s',
-            (student_id,event_id))
+            'select whoLeave_event,whoLeave_event_id,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s and whoLeave_event_id=%s',
+            (student_id, event_id))
         events = g.cursor.fetchone()
         return jsonify(events), 200
+    else:
+        g.cursor.execute(
+            'select whoLeave_event,whoLeave_event_id,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s',
+            (student_id,))
+        events = g.cursor.fetchall()
 
-    g.cursor.execute(
-        'select whoLeave_event,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s',
-        (student_id,))
-    events = g.cursor.fetchall()
-
-    #到时候看下排序前需不需要格式化时间
-    #这里按照审批时间排序会导致错误 不知道要怎么办
-    #events_sorted = sorted(events, key=lambda x: x['check_time'], reverse=True)
-    return jsonify(events), 200
+        #到时候看下排序前需不需要格式化时间
+        #这里按照审批时间排序会导致错误 不知道要怎么办
+        #events_sorted = sorted(events, key=lambda x: x['check_time'], reverse=True)
+        return jsonify(events), 200
 
 
 # 返回照片 （旧
@@ -688,7 +697,7 @@ def publish():
         if toReturnEvents is not None:
             return jsonify(toReturnEvents), 200
         else:
-            return jsonify({"message":"没有可返回事件！"})
+            return jsonify({"message": "没有可返回事件！"})
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 

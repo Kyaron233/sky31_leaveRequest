@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS whoLeave(
     whoLeave_id VARCHAR(255) NOT NULL, -- 学号
     whoLeave_name VARCHAR(255) NOT NULL,
     whoLeave_department VARCHAR(255) NOT NULL,-- 请假者的部门
+    whoLeave_role INT,-- 请假者的职位
     isActive INT NOT NULL default 1,-- 后面会有个触发器与event中同步
 
     leave_reason VARCHAR(255) NOT NULL,-- 请假原因
