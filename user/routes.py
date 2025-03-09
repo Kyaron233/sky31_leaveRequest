@@ -65,21 +65,19 @@ def login():
 @user_bp.route('/forget_pswd', methods=['POST'])
 def forget_pswd():
     student_id = request.json.get('student_id')
+    name=request.json.get('name')
     try:
-        g.cursor.execute('select * from student where student_id=%s', (student_id,))
+        g.cursor.execute('select * from student where student_id=%s and name=%s', (student_id,name))
         stu = g.cursor.fetchone()
         if request.json.get('tel') != stu['tel']:
             return jsonify({"message": "手机号错误，修改失败!"}), 400
 
-        new_pswd = request.json.get('new_pswd')
-        if new_pswd is None:
-            return jsonify({"message": "请输入新密码！"}), 400
-        if is_valid_pswd(new_pswd):
-            pswd_hash = hash_pswd(new_pswd)  # 生成新密码哈希 方法hash_pswd()得到的是一个字节字符串
-            g.cursor.execute('update student set pswd_hash=%s  where student_id=%s', (pswd_hash, student_id))
-            return jsonify({"message": "密码修改成功！"}), 200
-        else:
-            return jsonify({"message": "密码不符合规则，请重新输入！"}), 400
+        # 重置为默认密码（学号后六位）
+        new_pswd = student_id[-6:]
+        pswd_hash = hash_pswd(new_pswd)  # 生成新密码哈希 方法hash_pswd()得到的是一个字节字符串
+        g.cursor.execute('update student set pswd_hash=%s  where student_id=%s', (pswd_hash, student_id))
+        return jsonify({"message": "密码重置成功！重置为学号后六位！"}), 200
+
     except mariadb.Error as e:
         return jsonify({"message": f"查询用户时数据库错误：{str(e)}"}), 500
 
