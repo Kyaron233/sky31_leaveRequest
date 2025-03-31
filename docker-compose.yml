@@ -7,11 +7,15 @@ services:
       - "8000:8000"
     depends_on:
       - db
+    networks:
+      - sky31
     environment:
       DATABASE_URI: mysql+pymysql://root:sky31admin@db/sky31_leaveRequest
 
   db:
     image: mariadb:latest
+    networks:
+      - sky31
     volumes:
       - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql  # 初始化 SQL（仅第一次有效）
       - db_data:/var/lib/mysql   # 持久化 MariaDB 数据
@@ -23,7 +27,11 @@ services:
 
   redis:
     image: redis:latest
+    networks:
+      - sky31
 
 
 volumes:
   db_data:
+networks:
+  - sky31:
