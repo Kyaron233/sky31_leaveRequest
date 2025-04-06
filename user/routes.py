@@ -313,7 +313,7 @@ def leaveRequest():
     is_photo_needed = temp['is_photo_needed']
     event_name = temp['event_name']
     event_departmemt = temp['event_department']
-    role_id = role_in_depart_mapping_reverse.get(stu['department'])
+    role_id = role_in_depart_mapping_reverse.get(stu['role_in_depart'])
 
     # 查找event_id
     try:
@@ -342,7 +342,7 @@ def leaveRequest():
 
             #以下都是传图片的代码
             files = request.files.getlist('files')  # 获取多个文件
-            if not files or all(file.filename == '' for file in files):
+            if not files:# or all(file.filename == '' for file in files):
                 return jsonify({"message": "未选中文件"}), 400
 
             errors = []
@@ -458,6 +458,7 @@ def queryAllMember(department):
     department = department_mapping.get(department)
     g.cursor.execute("select name,role_in_depart,student_id from student where department=%s", (department,))
     members = g.cursor.fetchall()
+    members['role_in_depart'] = role_in_depart_mapping_reverse.get[members['role_in_depart']]
     return jsonify(members), 200
 
 
