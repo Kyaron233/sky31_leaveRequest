@@ -529,7 +529,7 @@ def query_department_leaveRequset(department_id, event_id):
     try:
         department = department_mapping.get(department_id)
         g.cursor.execute(
-            "select whoLeave_event,whoLeave_event_id,whoLeave_name,whoLeave_id,event_name,leave_reason,check_opinion,is_permitted,check_time from whoLeave where (event_department = %s OR event_department = '全中心') and whoLeave_event_id=%s",
+            "select whoLeave_event,whoLeave_event_id,whoLeave_role,whoLeave_name,whoLeave_id,event_name,leave_reason,check_opinion,is_permitted,check_time from whoLeave where (event_department = %s OR event_department = '全中心') and whoLeave_event_id=%s",
             (department, event_id))
         events = g.cursor.fetchall()
 

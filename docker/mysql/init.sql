@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS whoLeave(
 
 INSERT INTO admin (admin_id,name,pswd_hash) VALUES ('admin','testAdmin',"$2b$12$mIz8BXciBPxDArvf4lNrhuPfIrwLkbFV0LrFR7M8br5MlXqwvg6Ee"); -- 密码是114514
 INSERT INTO student(student_id,name,isPresident,tel,department,role_in_depart,pswd_hash) VALUES ( "202405134209","乌萨奇",0,"17680251526","技术研发部","干事","$2b$12$6hxSpCHa/QlzoQ/Vzv3eFuhn4jh92I8aZoYe5roS19hMKBOi2BAoS" );
-INSERT INTO student(student_id,name,isPresident,tel,department,role_in_depart,pswd_hash) VALUES ( "202214544523","阿萨德",0,"15544526545","行政人事部","正部长","$2b$12$L2dAkcK1vAaoElx72Sc.gOIheRw3WaMsKMQa3kuqSNh3gscQvOaa6" );-- 544523
+INSERT INTO student(student_id,name,isPresident,tel,department,role_in_depart,pswd_hash) VALUES ( "202214544523","阿萨德",0,"15544526545","行政人事部","正主席/团支书","$2b$12$L2dAkcK1vAaoElx72Sc.gOIheRw3WaMsKMQa3kuqSNh3gscQvOaa6" );-- 544523
 
 INSERT INTO events(event_name,event_type,event_date,event_department,is_photo_needed) VALUES ("行政会议","部门大会","2025-02-06 23:00:00","行政人事部",0);
 DELIMITER $$
