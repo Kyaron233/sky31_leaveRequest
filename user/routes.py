@@ -474,6 +474,9 @@ def queryHistory(student_id):
         'select whoLeave_event,leave_reason,check_opinion,is_permitted,check_time from whoLeave where whoLeave_id = %s',
         (student_id,))
     events = g.cursor.fetchall()
+    for event in events:
+        g.cursor.execute("select event_date,isActive from events where event_id=%s", (event['whoLeave_event_id'],))
+        event.append(g.cursor.fetchone())
 
     # 按时间排序 到时候看下排序前需不需要格式化时间
     # 到时候把这里注释掉吧 好像有问题
