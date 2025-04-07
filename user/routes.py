@@ -459,7 +459,7 @@ def queryAllMember(department):
     g.cursor.execute("select name,role_in_depart,student_id from student where department=%s", (department,))
     members = g.cursor.fetchall()
     for member in members:
-        member['role_in_depart'] = role_in_depart_mapping_reverse.get[member['role_in_depart']]
+        member['role_in_depart'] = role_in_depart_mapping_reverse.get(member['role_in_depart'])
     return jsonify(members), 200
 
 
