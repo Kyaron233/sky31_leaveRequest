@@ -337,7 +337,7 @@ def leaveRequest():
 
             # 上传图片
             # 检查是否有文件
-            if 'files' not in request.files:
+            if 'file' not in request.files:
                 return jsonify({"message": "未读取到文件"}), 400
 
             #以下都是传图片的代码
