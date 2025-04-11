@@ -45,8 +45,11 @@ CREATE TABLE IF NOT EXISTS whoLeave(
     check_opinion VARCHAR(255),-- 审批意见，可以是空值
     is_permitted INT DEFAULT 0,-- 通过与否，0代表未审批，1和-1分别代表同意和不同意
     check_time DATETIME,
-    photo_paths VARCHAR(255), -- 由于要上传事实图片作为请假材料，故使用此变量记录服务器中上传的图片的位置,同时由于可以不上传图片，所以path可空
-    photo_amount INT NOT NULL -- 不传照片则为0
+
+    -- 使用 三个变量存（最多）三张照片，使用base64编码，由前端解码
+    photo_1 MEDIUMTEXT,
+    photo_2 MEDIUMTEXT,
+    photo_3 MEDIUMTEXT
 
 );
 

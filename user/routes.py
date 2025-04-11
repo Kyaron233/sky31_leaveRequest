@@ -328,74 +328,112 @@ def leaveRequest():
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误{str(e)}"}), 500
 
+    # 以下代码已弃用
+    # if is_photo_needed:
+    #     # 在需要请假材料的情况下添加请假表
+    #     try:
+    #         reason = request.json.get('reason')
+    #         if reason is None:
+    #             return jsonify({"message": "请填写原因"}), 400
+    #
+    #         # 上传图片
+    #         # 检查是否有文件
+    #         if 'file' not in request.files:
+    #             return jsonify({"message": "未读取到文件"}), 400
+    #
+    #         #以下都是传图片的代码
+    #         files = request.files.getlist('files')  # 获取多个文件
+    #         if not files:# or all(file.filename == '' for file in files):
+    #             return jsonify({"message": "未选中文件"}), 400
+    #
+    #         errors = []
+    #
+    #         counts_photo = 0
+    #
+    #         for file in files:
+    #             if file.filename == '':
+    #                 errors.append({"message": "未选中文件"})
+    #                 continue
+    #
+    #             # 计算文件大小
+    #             file.seek(0, os.SEEK_END)  # 移动到文件流的末尾
+    #             file_size = file.tell()  # 获取大小
+    #             file.seek(0)  # 重置文件流到开头
+    #
+    #             if file_size > MAX_FILE_SIZE:
+    #                 errors.append({"message": f"文件 {file.filename} 大小不得大于10MB"})
+    #                 continue
+    #
+    #             # 生成唯一文件名,但是name是中文不知道会不会出错，待调试
+    #             # 要注意文件夹不能正确创建等问题
+    #             # 这里好像要用open
+    #             os.makedirs(f'app/upload/photos/{event_id}/{student_id}', exist_ok=True)
+    #             #now = datetime.now()
+    #             #format_time = now.strftime('%Y_%m_%d %H_%M_')
+    #             myfile_name = str(counts_photo)
+    #             file_path = os.path.join(f'app/upload/photos/{event_id}/{student_id}', myfile_name)  #事件id作为一个文件夹放照片
+    #
+    #             # 一次最多上传3张照片，前端拦截掉超过3张照片的请求
+    #             paths = ["" for _ in range(3)]
+    #
+    #             paths[counts_photo] = file_path
+    #             counts_photo += 1
+    #
+    #             # 保存文件
+    #             file.save(file_path)
+    #
+    #             # 返回响应
+    #             if errors:
+    #                 return jsonify({"message": "部分文件上传失败", "errors": errors}), 400
+    #
+    #         paths_json = json.dumps(paths)
+    #         #以上都是传图片的代码
+    #
+    #         g.cursor.execute("INSERT INTO whoLeave "
+    #                          "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount,whoLeave_department,whoLeave_role)"
+    #                          "VALUES (%s, %s , %s , %s, %s, %s, %s,%s,%s)", (event_name, event_id, stu['student_id'],
+    #                                                                          stu['name'], reason, paths_json,
+    #                                                                          counts_photo, event_departmemt, role_id))
+    #
+    #         return jsonify({"message": "文件上传成功"}), 200
+    #     except mariadb.Error as e:
+    #         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
     if is_photo_needed:
-        # 在需要请假材料的情况下添加请假表
         try:
             reason = request.json.get('reason')
             if reason is None:
                 return jsonify({"message": "请填写原因"}), 400
 
-            # 上传图片
-            # 检查是否有文件
-            if 'file' not in request.files:
-                return jsonify({"message": "未读取到文件"}), 400
+            photos = request.json.get('photos')
+            if photos is None:
+                return jsonify({"message": "未上传图片"}), 400
 
-            #以下都是传图片的代码
-            files = request.files.getlist('files')  # 获取多个文件
-            if not files:# or all(file.filename == '' for file in files):
-                return jsonify({"message": "未选中文件"}), 400
+            photo_to_store = [None,None,None]
+            for i in range(len(photos)):
+                photo_to_store[i] = photos[i]
 
-            errors = []
 
-            counts_photo = 0
-
-            for file in files:
-                if file.filename == '':
-                    errors.append({"message": "未选中文件"})
-                    continue
-
-                # 计算文件大小
-                file.seek(0, os.SEEK_END)  # 移动到文件流的末尾
-                file_size = file.tell()  # 获取大小
-                file.seek(0)  # 重置文件流到开头
-
-                if file_size > MAX_FILE_SIZE:
-                    errors.append({"message": f"文件 {file.filename} 大小不得大于10MB"})
-                    continue
-
-                # 生成唯一文件名,但是name是中文不知道会不会出错，待调试
-                # 要注意文件夹不能正确创建等问题
-                os.makedirs(f'app/upload/photos/{event_id}/{student_id}', exist_ok=True)
-                #now = datetime.now()
-                #format_time = now.strftime('%Y_%m_%d %H_%M_')
-                myfile_name = str(counts_photo)
-                file_path = os.path.join(f'app/upload/photos/{event_id}/{student_id}', myfile_name)  #事件id作为一个文件夹放照片
-
-                # 一次最多上传3张照片，前端拦截掉超过3张照片的请求
-                paths = ["" for _ in range(3)]
-
-                paths[counts_photo] = file_path
-                counts_photo += 1
-
-                # 保存文件
-                file.save(file_path)
-
-                # 返回响应
-                if errors:
-                    return jsonify({"message": "部分文件上传失败", "errors": errors}), 400
-
-            paths_json = json.dumps(paths)
-            #以上都是传图片的代码
-
+            # 更新请假表也用这个接口 下面这段代码检测是否已有请假记录 如果有的话删掉原来的
+            g.cursor.execute("select * from whoLeave where whoLeave_event_id=%s AND whoLeave_id=%s",
+                             (event_id, student_id))
+            found_event = g.cursor.fetchone()
+            if found_event is not None:
+                g.cursor.execute("delete from whoLeave where whoLeave_event_id=%s AND whoLeave_id=%s",
+                                 (event_id, student_id))
             g.cursor.execute("INSERT INTO whoLeave "
-                             "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount,whoLeave_department,whoLeave_role)"
-                             "VALUES (%s, %s , %s , %s, %s, %s, %s,%s,%s)", (event_name, event_id, stu['student_id'],
-                                                                             stu['name'], reason, paths_json,
-                                                                             counts_photo, event_departmemt, role_id))
+                             "(whoLeave_event,whoLeave_event_id,whoLeave_id,whoLeave_name,leave_reason,photo_1,photo_2,photo_3,whoLeave_department,whoLeave_role)"
+                             "VALUES (%s, %s, %s, %s, %s, %s,%s,%s,%s,%s)", (event_name, event_id, stu['student_id'],
+                                                                       stu['name'],
+                                                                       reason,photo_to_store[0],photo_to_store[1],photo_to_store[2],event_departmemt, role_id))
+            return jsonify({"message": "返回成功"}), 200
 
-            return jsonify({"message": "文件上传成功"}), 200
         except mariadb.Error as e:
             return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+
+
+
 
 
     else:
@@ -877,6 +915,48 @@ def publish_add():
         return jsonify({"message": "活动添加成功"}), 200
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
+
+@user_bp.route('photo', methods=['GET'])
+def get_photo():
+    session_id = request.cookies.get('session_id')
+    if not user_login_valid(session_id):
+        return jsonify({"message": "登录状态失效！"}), 401
+    # 变量 student_id和event_id
+    student_id = request.args.get('student_id')
+    event_id = request.args.get('event_id')
+
+    try:
+        # 之前设置了返回值是字典
+        g.cursor.execute("select photo_1 from whoLeave where whoLeave_event_id = %s and whoLeave_id=%s", (event_id, student_id))
+        photo_1 = g.cursor.fetchone()
+        photo_1 = photo_1['photo_1']
+
+        g.cursor.execute("select photo_2 from whoLeave")
+        photo_2 = g.cursor.fetchone()
+        photo_2 = photo_2['photo_2']
+
+        g.cursor.execute("select photo_3 from whoLeave")
+        photo_3 = g.cursor.fetchone()
+        photo_3 = photo_3['photo_3']
+
+        photo_dict={}
+        if photo_1 is not None:
+            photo_dict['photo_1'] = photo_1
+        if photo_2 is not None:
+            photo_dict['photo_2'] = photo_2
+        if photo_3 is not None:
+            photo_dict['photo_3'] = photo_3
+
+        return jsonify(photo_dict), 200
+
+    except mariadb.Error as e:
+        return jsonify({"message": str(e)}), 500
+
+
+
+
+
+
 
 
 def user_login_valid(session_id):
