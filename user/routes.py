@@ -279,12 +279,15 @@ def query_leaveRequest(event_id):
         else:
             # 返回照片数量，前端看情况调用获取照片的接口
             if True:  #懒得改缩进了。。。。
+                whoLeave_photo={}
+                whoLeave_photo=get_photos(student_id,event_id)
                 return jsonify({"event": event['whoLeave_event'],
                                 "whoLeave_id": event['whoLeave_id'],
                                 "whoLeave_name": event['whoLeave_name'],
                                 "whoLeave_reason": event['leave_reason'],
                                 'is_permitted': event['is_permitted'],
                                 'check_opinion': event['check_opinion'],
+                                'whoLeave_photo':whoLeave_photo
                                 }), 200
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
@@ -919,41 +922,50 @@ def publish_add():
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
-@user_bp.route('photo', methods=['GET'])
-def get_photo():
-    session_id = request.cookies.get('session_id')
-    if not user_login_valid(session_id):
-        return jsonify({"message": "登录状态失效！"}), 401
-    # 变量 student_id和event_id
-    student_id = request.args.get('student_id')
-    event_id = request.args.get('event_id')
-
+# @user_bp.route('photo', methods=['GET'])
+# def getPhoto():
+#     session_id = request.cookies.get('session_id')
+#     if not user_login_valid(session_id):
+#         return jsonify({"message": "登录状态失效！"}), 401
+#     # 变量 student_id和event_id
+#     #student_id = request.args.get('student_id')
+#     student_id = redis_client_user.get(session_id)
+#     event_id = request.args.get('event_id')
+#
+def get_photos(student_id,event_id):
+    photo1 = None
+    photo2 = None
+    photo3 = None
     try:
         # 之前设置了返回值是字典
         g.cursor.execute("select photo_1 from whoLeave where whoLeave_event_id = %s and whoLeave_id=%s", (event_id, student_id))
         photo_1 = g.cursor.fetchone()
-        photo_1 = photo_1['photo_1']
+        if photo_1 is not None:
+            photo1 = photo_1['photo_1']
 
         g.cursor.execute("select photo_2 from whoLeave")
         photo_2 = g.cursor.fetchone()
-        photo_2 = photo_2['photo_2']
+        if photo_2 is not None:
+            photo2 = photo_2['photo_2']
 
         g.cursor.execute("select photo_3 from whoLeave")
         photo_3 = g.cursor.fetchone()
-        photo_3 = photo_3['photo_3']
+        if photo_3 is not None:
+            photo3 = photo_3['photo_3']
 
         photo_dict={}
-        if photo_1 is not None:
-            photo_dict['photo_1'] = photo_1
-        if photo_2 is not None:
-            photo_dict['photo_2'] = photo_2
-        if photo_3 is not None:
-            photo_dict['photo_3'] = photo_3
+        if photo1 is not None:
+            photo_dict['photo_1'] = photo1
+        if photo2 is not None:
+            photo_dict['photo_2'] = photo2
+        if photo3 is not None:
+            photo_dict['photo_3'] = photo3
 
-        return jsonify(photo_dict), 200
+        return photo_dict
 
     except mariadb.Error as e:
-        return jsonify({"message": str(e)}), 500
+        errors={} #出错即无法获取照片
+        return errors
 
 
 
