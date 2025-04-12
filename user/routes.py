@@ -516,7 +516,7 @@ def queryHistory(student_id):
     for event in events:
         g.cursor.execute("select event_date,isActive from events where event_id=%s", (event['whoLeave_event_id'],))
         to_add = g.cursor.fetchone()
-        event['is_active'] = to_add['is_active']
+        event['isActive'] = to_add['isActive']
         event['event_date'] = to_add['event_date']
 
     # 按时间排序 到时候看下排序前需不需要格式化时间
