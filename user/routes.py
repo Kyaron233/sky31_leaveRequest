@@ -271,7 +271,7 @@ def query_leaveRequest(event_id):
     student_id = redis_client_user.get(session_id)
     try:
         g.cursor.execute(
-            "select whoLeave_event,whoLeave_id,whoLeave_name,leave_reason,photo_paths,photo_amount,is_permitted,check_opinion from whoLeave where whoLeave_id=%s and whoLeave_event_id=%s",
+            "select whoLeave_event,whoLeave_id,whoLeave_name,leave_reason,is_permitted,check_opinion from whoLeave where whoLeave_id=%s and whoLeave_event_id=%s",
             (student_id, event_id))
         event = g.cursor.fetchone()
         if event is None:
@@ -285,7 +285,7 @@ def query_leaveRequest(event_id):
                                 "whoLeave_reason": event['leave_reason'],
                                 'is_permitted': event['is_permitted'],
                                 'check_opinion': event['check_opinion'],
-                                'photo_amount': event['photo_amount']}), 200
+                                }), 200
     except mariadb.Error as e:
         return jsonify({"message": f"数据库错误：{str(e)}"}), 500
 
@@ -308,6 +308,7 @@ def leaveRequest():
     # 获取“是否需要照片”这一参数，并获取事件名称
     g.cursor.execute("select is_photo_needed ,event_name,event_department from events where event_id=%s", (event_id,))
     temp = g.cursor.fetchone()
+    #这里department单词写错了，但是后面变量名没错，所以懒得改了。。。
     if temp is None:
         return jsonify({"message": "事件不存在!"}), 404
     is_photo_needed = temp['is_photo_needed']
@@ -883,7 +884,7 @@ def publish_add():
     stu = g.cursor.fetchone()
     role = stu['role_in_depart']
     department = stu['department']
-    if role not in ('正主席', '团支书', '分管主席', '正部长', '副部长'):
+    if role not in ('正主席/团支书', '分管主席', '正部长', '副部长'):
         return jsonify({"message": "权限错误,您不能发布会议"}), 403
     ename = request.json.get('event_name')
     etype = request.json.get('event_type')
@@ -894,7 +895,7 @@ def publish_add():
 
     try:
         if (
-                (role in ('正主席', '团支书') and etype not in ('中心大会', '主席团例会', '部长级例会')) or
+                (role == ('正主席/团支书') and etype not in ('中心大会', '主席团例会', '部长级例会')) or
                 (role == '分管主席' and etype not in ('分管部长例会', '部门大会')) or
                 (role == '正部长' and etype not in ('部门大会', '部长干事会议', '部长会议')) or
                 (role == '副部长' and etype != '部长干事会议')
