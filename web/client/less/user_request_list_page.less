@@ -1,0 +1,143 @@
+@rootFontSize: 39.3 * 1rem;
+
+.user_request_list {
+  section {
+    width: 100vw;
+    height: 100vh;
+    background: #fff;
+    padding: (20 / @rootFontSize);
+    color: #3A3A3A;
+    .header {
+      .active_content {
+        display: flex;
+        justify-content: space-between;
+        width: (343 / @rootFontSize);
+        height: (88 / @rootFontSize);
+        .left {
+          width: (273 / @rootFontSize);
+          height: 100%;
+          padding: (10 / @rootFontSize);
+          border-radius: (15 / @rootFontSize);
+          border: (1 / @rootFontSize) solid transparent;
+          background-clip: padding-box, border-box;
+          background-origin: padding-box, border-box;
+          background-image: linear-gradient(90deg, #f0fbff 0%, #f0fbff 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+          .title {
+            width: 100%;
+            height: (18 / @rootFontSize);
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+            h2 {
+              font-size: (16 / @rootFontSize);
+              font-weight: 500;
+              margin-right: (10 / @rootFontSize);
+              font-family: 'PingFang Semibold';
+            }
+            h3 {
+              font-size: (10 / @rootFontSize);
+            }
+          }
+          .type {
+            margin: (10 / @rootFontSize) 0 (6 / @rootFontSize) 0;
+          }
+          .type,
+          .prove {
+            font-size: (12 / @rootFontSize);
+            font-weight: 500;
+            color: #000;
+            text-align: left;
+            span {
+              font-weight: 400;
+              color: #3A3A3A;
+            }
+          }
+        }
+        .right {
+          width: (50 / @rootFontSize);
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: (7 / @rootFontSize) 0;
+          button {
+            width: (50 / @rootFontSize);
+            height: (28 / @rootFontSize);
+            border-radius: (10 / @rootFontSize);
+            box-shadow: (0 / @rootFontSize) (4 / @rootFontSize) (4 / @rootFontSize) (0 / @rootFontSize) #00000026;
+            color: #fff;
+            font-size: (14 / @rootFontSize);
+            font-family: 'PingFang Medium';
+          }
+          .modify {
+            border: (1 / @rootFontSize) solid transparent;
+            background-clip: padding-box, border-box;
+            background-origin: padding-box, border-box;
+            background-image: linear-gradient(90deg, #98E0FF 0%, #98E0FF 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+          }
+          .delete {
+            border: (1 / @rootFontSize) solid transparent;
+            background-clip: padding-box, border-box;
+            background-origin: padding-box, border-box;
+            background-image: linear-gradient(90deg, #FFBAD3 0%, #FFBAD3 100%), linear-gradient(90deg, #FFBAD3 0%, #F7D4EF 68.4%, #E1DCFF 100%);
+          }
+        }
+      }
+    }
+    .section {
+      .user_content {
+        width: (353 / @rootFontSize);
+        height: (668 / @rootFontSize);
+        margin-top: (30 / @rootFontSize);
+        .user_items {
+          height: 100%;
+          padding-bottom: (60 / @rootFontSize);
+          overflow: scroll;
+          .lheader {
+           span {
+            display: inline-block;
+            height: (24 / @rootFontSize);
+            line-height: (22 / @rootFontSize);
+            padding: (2 / @rootFontSize) (5 / @rootFontSize);
+            border-radius: (6 / @rootFontSize);
+            background: #98E0FF99;
+            font-size: (14 / @rootFontSize);
+            text-align: center;
+            font-family: 'PingFang Medium';
+           }
+          }
+          .lbody {
+            width: (353 / @rootFontSize);
+            height: (40 / @rootFontSize);
+            margin: (14 / @rootFontSize) 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: (9 / @rootFontSize) (13 / @rootFontSize) (9 / @rootFontSize) (10 / @rootFontSize);
+            border-radius: (8 / @rootFontSize);
+            border: (0.5 / @rootFontSize) solid transparent;
+            background-clip: padding-box, border-box;
+            background-origin: padding-box, border-box;
+            background-image: linear-gradient(90deg, #fff 0%, #fff 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+            .name {
+              font-size: (16 / @rootFontSize);
+            }
+            .approval_status {
+              font-size: (10 / @rootFontSize);
+            }
+            .approval_btn {
+              width: (46 / @rootFontSize);
+              height: (22 / @rootFontSize);
+              font-size: (12 / @rootFontSize);
+              color: #fff;
+              background: #FFBAD3;
+              box-shadow: (0 / @rootFontSize) (0 / @rootFontSize) (6 / @rootFontSize) (0 / @rootFontSize) #FFBAD3;
+              border-radius: (90 / @rootFontSize);
+              font-family: 'PingFang Medium';
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+.user_details .nav .bottom {
+  position: relative;
+}
+.user_details .nav .bottom .name {
+  position: relative;
+  z-index: 10;
+  display: block;
+  width: 1.62849873rem;
+  height: 0.76335878rem;
+  line-height: 0.76335878rem;
+  margin: 0 auto;
+  font-size: 0.40712468rem;
+  font-weight: 500;
+  color: #000;
+  background-color: #fff;
+}
+.user_details .nav .bottom::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  display: block;
+  width: 100%;
+  height: 0.03816794rem;
+  background: linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+}

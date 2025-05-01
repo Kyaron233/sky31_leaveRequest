@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>重置密码</title>
+    <link rel="stylesheet" href="../css/public.css" />
+    <link rel="stylesheet" href="../css/font_family.css" />
+    <link rel="stylesheet" href="../css/popup.css" />
+    <link rel="stylesheet" href="../css/reset_pwd.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header><h1>验证信息</h1></header>
+      <section>
+        <form class="user_form">
+          <div class="input_fields">
+            <input type="text" class="input_field" placeholder="请输入姓名" name="userName" />
+            <input type="text" class="input_field" placeholder="请输入学号" name="student_id" />
+            <input type="text" class="input_field" placeholder="请输入电话号码" name="tel" />
+          </div>
+        </form>
+      </section>
+      <footer>
+        <button class="submit">提交</button>
+      </footer>
+    </div>
+    <div class="popup_shadow hide">
+      <div class="popup">
+        <div class="top"></div>
+        <div class="bottom"></div>
+      </div>
+    </div>
+    <script src="../../lib/flexible.js"></script>
+    <script src="../../lib/form-serialize.js"></script>
+    <script src="../../lib/axios.js"></script>
+    <script src="../js/reset_pwd.js"></script>
+  </body>
+</html>

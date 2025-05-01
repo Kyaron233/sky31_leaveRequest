@@ -1,0 +1,60 @@
+body {
+  font-family: 'PingFang Regular';
+  background-image: url(../images/verify.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+.container {
+  position: absolute;
+  top: 1.3740458rem;
+  left: 0.50890585rem;
+  width: 8.9821883rem;
+  height: 19.77099237rem;
+  background: #FFFC;
+  border-radius: 0.38167939rem;
+}
+.container header h1 {
+  position: absolute;
+  top: 0.81424936rem;
+  left: 3.66412214rem;
+  font-size: 0.40712468rem;
+  font-weight: 600;
+  font-family: 'PingFang Semibold';
+}
+.container section .input_fields {
+  position: absolute;
+  top: 1.88295165rem;
+  left: 0.40712468rem;
+  color: #A6A6A6;
+}
+.container section .input_fields .input_field {
+  margin: 0.25445293rem 0;
+  padding: 0 0 0 0.6870229rem;
+  width: 8.14249364rem;
+  height: 1.52671756rem;
+  line-height: 1.52671756rem;
+  border: none;
+  border-radius: 0.25445293rem;
+  background: #D9D9D980;
+  font-size: 0.38167939rem;
+  color: #3A3A3A;
+  font-family: 'PingFang Regular';
+}
+.container section .input_fields input::-webkit-input-placeholder {
+  font-size: 0.38167939rem;
+  color: #A6A6A6;
+}
+.container footer .submit {
+  position: absolute;
+  top: 8.80407125rem;
+  left: 0.40712468rem;
+  width: 8.14249364rem;
+  height: 1.52671756rem;
+  border-radius: 0.25445293rem;
+  background: linear-gradient(90deg, #CFD7F8 0%, #B7DDFB 36.29%, #98E0FF 100%);
+  font-size: 0.40712468rem;
+  color: #FFF;
+  box-shadow: 0rem 0.10178117rem 0.10178117rem 0rem #00000040;
+  font-family: 'PingFang Medium';
+}

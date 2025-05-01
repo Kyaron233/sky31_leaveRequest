@@ -1,0 +1,34 @@
+.activity_items .item {
+  align-items: center;
+}
+.activity_items .item .activity_name {
+  width: 2.54452926rem !important;
+  margin: 0!important;
+}
+.activity_items .item .approval_status {
+  min-width: 1.06870229rem;
+  font-size: 0.3562341rem;
+  margin-left: 0.38167939rem;
+}
+.activity_items .item button {
+  margin-left: 0.38167939rem;
+  width: 1.22137405rem;
+  height: 0.48346056rem;
+  border-radius: 0.25445293rem;
+  background: #c0c0c0;
+  font-size: 0.3562341rem;
+  color: #fff;
+}
+.activity_items .item .cancel {
+  background-color: #fff;
+  color: #3a3a3a;
+}
+.activity_items .approved .cancel {
+  visibility: hidden;
+}
+.activity_items .approved.agree {
+  background: #FFBAD3 !important;
+}
+.activity_items .approved.disagree {
+  background: #EBEBEB !important;
+}

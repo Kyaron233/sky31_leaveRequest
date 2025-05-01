@@ -1,0 +1,114 @@
+body {
+  width: 100vw;
+  height: 100vh;
+  background-image: url(../images/userpage_bg.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+header {
+  position: absolute;
+  top: 3.12977099rem;
+  left: 1.85750636rem;
+}
+header h1 {
+  font-size: 0.61068702rem;
+  font-weight: 600;
+  font-family: 'PingFang Semibold';
+}
+section {
+  position: absolute;
+  bottom: 2.11195929rem;
+  width: 100%;
+  height: 11.34860051rem;
+  padding: 0 1.29770992rem 0 1.57760814rem;
+  font-size: 0.40712468rem;
+  background-image: url(../images/sanyi.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: left bottom;
+}
+section .header {
+  text-align: center;
+  margin-bottom: 1.11959288rem;
+}
+section .header h1 {
+  font-size: 0.40712468rem;
+  font-weight: 400;
+  color: #000;
+  font-family: 'PingFang Semibold';
+}
+section .user_data_content .section {
+  width: 7.12468193rem;
+  height: 4.93638677rem;
+}
+section .user_data_content .section .user_data {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: 'PingFang Regular';
+}
+section .user_data_content .section .user_data li {
+  width: 7.12468193rem;
+  height: 1.11959288rem;
+  border-radius: 0.12722646rem;
+  background: #EBEBEB;
+  padding: 0.27989822rem 0.53435115rem;
+}
+section .user_data_content .footer {
+  float: right;
+  margin-top: 0.63613232rem;
+}
+section .user_data_content .footer a {
+  color: #0091FF;
+  font-size: 0.3562341rem;
+  font-family: 'PingFang Regular';
+}
+section .modify_password_content .header {
+  margin-top: 0.61068702rem;
+}
+section .modify_password_content .section {
+  width: 7.12468193rem;
+  height: 3.05343511rem;
+}
+section .modify_password_content .section .user_data {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: 'PingFang Regular';
+}
+section .modify_password_content .section .user_data li {
+  width: 7.12468193rem;
+  height: 1.11959288rem;
+  border-radius: 0.12722646rem;
+  background: #EBEBEB;
+  padding: 0.27989822rem 0.30534351rem;
+}
+section .modify_password_content .section .user_data li span {
+  display: inline-block;
+  min-width: 1.65394402rem;
+  font-size: 0.40712468rem;
+}
+section .modify_password_content .section .user_data li input {
+  width: 3.81679389rem;
+  font-size: 0.3562341rem;
+  vertical-align: middle;
+  background: transparent;
+  font-family: 'PingFang Regular';
+}
+section .modify_password_content .footer .submit {
+  margin-top: 1.52671756rem;
+  margin-left: 0.61068702rem;
+  width: 5.92875318rem;
+  height: 0.76335878rem;
+  border-radius: 0.25445293rem;
+  border: 0.02544529rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+  box-shadow: 0rem 0.02544529rem 0.05089059rem 0rem #00000040;
+  color: #fff;
+  font-size: 0.3562341rem;
+}

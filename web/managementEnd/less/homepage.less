@@ -1,0 +1,93 @@
+@rootFontSize: 80 * 1rem;
+
+#homepage {
+  padding: (50 / @rootFontSize);
+  font-family: 'PingFang Regular';
+  .top_btns {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: (66 / @rootFontSize);
+    button {
+      width: (183 / @rootFontSize);
+      height: (66 / @rootFontSize);
+      border-radius: (10 / @rootFontSize);
+      border: (1 / @rootFontSize) solid transparent;
+      background-clip: padding-box, border-box;
+      background-origin: padding-box, border-box;
+      background-image: linear-gradient(90deg, #fff 0%,  #fff 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+      font-size: (30 / @rootFontSize);
+      font-weight: 500;
+      font-family: 'PingFang Medium';
+      color: #98E0FF;
+      text-shadow: (2 / @rootFontSize) (2 / @rootFontSize) (5 / @rootFontSize) (0 / @rootFontSize) #0000001A;
+
+    }
+  }
+  .departments {
+    margin: (54 / @rootFontSize) (23 / @rootFontSize) 0 (54 / @rootFontSize);
+    padding: (29 / @rootFontSize) 0 0 (47 / @rootFontSize);
+    width: (1425 / @rootFontSize);
+    height: (510 / @rootFontSize);
+    .department_items {
+      display: grid;
+      // justify-content: space-between;
+      width: 100%;
+      height: 100%;
+      overflow-y: scroll;
+      grid-template-columns: repeat(4, (250 / @rootFontSize));
+      grid-template-rows: repeat(4, (100 / @rootFontSize));
+      grid-gap: (70 / @rootFontSize) (100 / @rootFontSize);
+      padding-bottom: (30 / @rootFontSize);
+      .item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: (250 / @rootFontSize);
+        height: (100 / @rootFontSize);
+        border-radius: (10 / @rootFontSize);
+        border: (1.5 / @rootFontSize) solid transparent;
+        background-clip: padding-box, border-box;
+        background-origin: padding-box, border-box;
+        background-image: linear-gradient(90deg, #fff 0%,  #fff 100%), linear-gradient(90deg, #FFBAD3 0%, #F7D4EF 68.4%, #E1DCFF 100%);
+        font-size: (24 / @rootFontSize);
+        color: #000;
+        cursor: pointer;
+      }
+      .item1 {
+        margin: 0 auto;
+        grid-column: 1 / 5;
+      }
+    }
+
+    /* 滚动条整体部分 */
+    .department_items::-webkit-scrollbar {
+      width: (8 / @rootFontSize);
+    }
+
+    /* 滚动条的轨道 */
+    .department_items::-webkit-scrollbar-track {
+      background: #fff;        /* 轨道颜色 */
+      border-radius: (5 / @rootFontSize);
+    }
+
+    /* 滚动条里面可以拖动的那部分 */
+    .department_items::-webkit-scrollbar-thumb {
+      background: #ffbad3;          /* 滑块颜色 */
+      border-radius: (5 / @rootFontSize);       /* 滑块圆角 */
+    }    
+  }
+  .bottom_btn {
+    margin: (155 / @rootFontSize) 0 0 (406 / @rootFontSize);
+    .add_member_btn {
+      width: (695 / @rootFontSize);
+      height: (60 / @rootFontSize);
+      border-radius: (10 / @rootFontSize);
+      background: linear-gradient(90deg, #CFD7F8 0%, #B7DDFB 36.29%, #98E0FF 100%);
+      font-size: (20 / @rootFontSize);
+      font-weight: 500;
+      font-family: 'PingFang Medium';
+      color: #fff;
+    }
+  }
+}

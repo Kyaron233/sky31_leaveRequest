@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>三翼·青媒融媒体中心</title>
+    <link rel="stylesheet" href="./css/public.css" />
+    <link rel="stylesheet" href="./css/font_family.css" />
+    <link rel="stylesheet" href="./css/popup.css" />
+    <link rel="stylesheet" href="./css/header.css" />
+    <link rel="stylesheet" href="./css/index.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="icon"></div>
+      <h1 class="title">三翼·青媒融媒体中心 请假系统管理端</h1>
+    </div>
+    <div class="container">
+      <div class="login_content">
+        <div class="title">
+          <h1>三翼·青媒融媒体中心</h1>
+          <h1>请假系统</h1>
+          <h2>（管理端）</h2>
+        </div>
+        <div class="login">
+          <form action="" class="user_form">
+            <div class="input_filed">
+              <span>账号：</span>
+              <input type="text" placeholder="请输入账号" name="admin_id" />
+            </div>
+            <div class="input_filed">
+              <span>密码：</span>
+              <input type="password" placeholder="请输入密码" name="password" />
+            </div>
+          </form>
+        </div>
+        <button class="login_btn">登录</button>
+      </div>
+    </div>
+    <div class="popup_shadow hide">
+      <div class="popup">
+        <div class="top">输入错误！</div>
+        <div class="bottom"><button class="close">确定</button></div>
+      </div>
+    </div>
+    <script src="../lib/flexiblePC.js"></script>
+    <script src="../lib/form-serialize.js"></script>
+    <script src="../lib/axios.js"></script>
+    <script src="./utils/request.js"></script>
+    <script src="./js/index.js"></script>
+  </body>
+</html>

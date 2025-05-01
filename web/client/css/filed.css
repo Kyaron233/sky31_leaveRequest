@@ -1,0 +1,49 @@
+.header_nav {
+  width: 100%;
+  height: 1.11959288rem;
+  line-height: 1.11959288rem;
+  background-color: #fff;
+  position: relative;
+  z-index: 100;
+}
+.header_nav .icon {
+  width: 0.91603053rem;
+  height: 0.99236641rem;
+  position: absolute;
+  left: 0.30534351rem;
+  background-image: url(../images/Vector.png);
+  background-repeat: no-repeat;
+  background-size: 0.50890585rem 0.43256997rem;
+  background-position: center center;
+}
+.header_nav h1 {
+  text-align: center;
+  font-size: 0.40712468rem;
+  font-weight: 600;
+  font-family: 'PingFang Semibold';
+}
+.filed {
+  position: absolute;
+  bottom: 2.08651399rem;
+  left: 0.50890585rem;
+  width: 8.9821883rem;
+  height: 17.09923664rem;
+  background: #fff;
+  padding: 0.50890585rem 0.89058524rem;
+  font-size: 0.40712468rem;
+  box-shadow: 0rem -0.10178117rem 0.50890585rem 0rem #C5EEFF70;
+  border-radius: 0.50890585rem 0.50890585rem 0 0;
+  border: 0.02544529rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(to right, #fff, #fff), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+}
+.header {
+  text-align: center;
+}
+.header h2 {
+  font-size: 0.40712468rem;
+  font-weight: 500;
+  color: #3A3A3A;
+  font-family: 'PingFang Medium';
+}

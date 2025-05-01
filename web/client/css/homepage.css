@@ -1,0 +1,75 @@
+body {
+  background-image: url(../images/homepage_bg.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  font-family: 'PingFang Regular';
+}
+.filed1 {
+  position: absolute;
+  top: 1.3740458rem;
+  left: 0.50890585rem;
+  width: 8.9821883rem;
+  height: 20.30534351rem;
+  padding: 0 0.25445293rem;
+  background: #FFFFFF;
+  border: 0.03816794rem solid;
+  border-image: linear-gradient(90deg, #FFBAD3 0%, #F7D4EF 68.4%, #E1DCFF 100%);
+  border-image-slice: 1;
+}
+.filed1 header {
+  width: 100%;
+  height: 1.17048346rem;
+  text-align: center;
+}
+.filed1 header h1 {
+  font-size: 0.40712468rem;
+  font-weight: 600;
+  line-height: 1.17048346rem;
+  color: #3A3A3A;
+  border-bottom: 0.02544529rem solid #C0C0C0;
+  font-family: 'PingFang Semibold';
+}
+.container.form_list section {
+  height: 17.81170483rem;
+  background-image: url(../images/empty2.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+}
+.container.form_list section .activity_items {
+  padding-bottom: 1.27226463rem;
+  width: 8.52417303rem;
+  height: 100%;
+  overflow: scroll;
+}
+.container.form_list section .activity_items .item {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.50890585rem 0;
+  padding: 0.48346056rem 0.30534351rem;
+  width: 8.42239186rem;
+  height: 1.52671756rem;
+  border-radius: 0.38167939rem;
+  background: #98E0FF;
+  color: #FFF;
+  box-shadow: 0.05089059rem 0.05089059rem 0.12722646rem 0rem #00000026;
+  line-height: 0.55979644rem;
+}
+.container.form_list section .activity_items .item .activity_name {
+  width: 3.56234097rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 0.50890585rem;
+  font-size: 0.40712468rem;
+  font-weight: 500;
+}
+.container.form_list section .activity_items .item .expiration_date {
+  width: 3.4605598rem;
+  font-size: 0.30534351rem;
+}
+.container.form_list section .activity_items .ended {
+  background: #EBEBEB;
+  color: #3A3A3A;
+}

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/public.css" />
+    <link rel="stylesheet" href="../css/font_family.css" />
+    <link rel="stylesheet" href="../css/popup.css" />
+    <link rel="stylesheet" href="../css/header.css" />
+    <link rel="stylesheet" href="../css/homepage_filed.css" />
+    <link rel="stylesheet" href="../css/homepage.css" />
+    <link rel="stylesheet" href="../css/member_message.css" />
+    <link rel="stylesheet" href="../css/add_member.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="icon"></div>
+      <h1 class="title">三翼·青媒融媒体中心 请假系统管理端</h1>
+    </div>
+    <div class="container scrollable-container">
+      <div class="side_nav">
+        <ul class="options">
+          <li id="homepage_nav" class="nav active">
+            <span class="homepage_icon icon"></span>
+            首页
+          </li>
+          <li id="member_message_nav" class="nav">
+            <span class="member_message_icon icon"></span>
+            成员信息
+          </li>
+          <li id="add_member_nav" class="nav">
+            <span class="add_member_icon icon"></span>
+            添加成员
+          </li>
+        </ul>
+      </div>
+      <div class="view_content">
+        <div id="homepage" class="content">
+          <div class="top_btns">
+            <button class="batch_import_btn">批量导入</button>
+            <input class="hide" type="file" id="fileInput" accept=".xlsx, .xls" name="file" />
+            <button class="batch_delete_btn">批量删除</button>
+          </div>
+          <div class="departments">
+            <ul class="department_items">
+              <li id="president" class="item item1">主席团</li>
+              <li id="media" class="item">媒体运营部</li>
+              <li id="wechat" class="item">微信推文部</li>
+              <li id="HR" class="item">行政人事部</li>
+              <li id="video" class="item">音视频文化工作室</li>
+              <li id="ER" class="item">外宣部</li>
+              <li id="product" class="item">产品经理与<br />产品运营部</li>
+              <li id="design" class="item">设计部</li>
+              <li id="tech" class="item">技术研发部</li>
+              <li id="CPPR" class="item">企划公关部</li>
+              <li id="news" class="item">新闻通讯社</li>
+              <li id="workshop" class="item">翼工坊</li>
+            </ul>
+          </div>
+          <div class="bottom_btn">
+            <button class="add_member_btn">添加新成员</button>
+          </div>
+        </div>
+        <div id="member_message" class="content hide">
+          <div class="department_title"><h1>部门名称</h1></div>
+          <div class="message_content">
+            <ul class="member_items"></ul>
+          </div>
+        </div>
+        <div id="add_member" class="content hide">
+          <div class="title"><h1>信息表</h1></div>
+          <form action="" class="member_message_form">
+            <ul class="message_items">
+              <li class="message_item"><input type="text" class="ch" name="name" placeholder="请输入姓名" /></li>
+              <li class="message_item"><input type="text" class="num" name="student_id" placeholder="请输入学号" /></li>
+              <li class="message_item"><input type="text" class="num" name="tel" placeholder="请输入电话" /></li>
+              <li class="message_item">
+                <div class="department">
+                  <span class="dp">部门<span>>丨</span></span
+                  ><span class="department_name">请选择部门</span>
+                  <ul class="options hide">
+                    <li id="president">主席团</li>
+                    <li id="HR">行政人事部</li>
+                    <li id="CPPR">企划公关部</li>
+                    <li id="news">新闻通讯社</li>
+                    <li id="ER">外宣部</li>
+                    <li id="wechat">微信推文部</li>
+                    <li id="media">媒体运营部</li>
+                    <li id="workshop">翼工坊</li>
+                    <li id="design">设计部</li>
+                    <li id="product">产品经理与产品运营部</li>
+                    <li id="tech">技术研发部</li>
+                    <li id="video">音视频文化工作室</li>
+                  </ul>
+                </div>
+                <input type="text" class="hide" name="department" />
+              </li>
+              <li class="message_item">
+                <div class="role_in_depart">
+                  <span class="ps">职位<span>>丨</span></span
+                  ><span class="role_in_depart_name">请选择职位</span>
+                  <ul class="options hide">
+                    <li id="4">正主席 / 团支书</li>
+                    <li id="3">分管主席</li>
+                    <li id="2">正部长</li>
+                    <li id="1">副部长</li>
+                    <li id="0">干事</li>
+                  </ul>
+                </div>
+                <input type="text" class="hide" name="role_in_depart" />
+              </li>
+              <!-- <li class="message_item"><input type="text" name="password" placeholder="请输入密码" /></li> -->
+            </ul>
+          </form>
+          <div class="add_message">
+            <button class="add_btn">添加</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="popup_shadow hide">
+      <div class="popup">
+        <div class="top"></div>
+        <div class="bottom">
+          <button class="close">确定</button>
+          <!-- <button class="cancle close">取消</button> -->
+        </div>
+      </div>
+    </div>
+    <script src="../../lib/flexiblePC.js"></script>
+    <script src="../../lib/form-serialize.js"></script>
+    <script src="../../lib/axios.js"></script>
+    <script src="../utils/request.js"></script>
+    <script src="../js/homepage.js"></script>
+    <script src="../js/member_message.js"></script>
+    <script src="../js/add_member.js"></script>
+  </body>
+</html>

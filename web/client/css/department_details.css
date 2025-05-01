@@ -1,0 +1,70 @@
+.department_details .classified_by_name {
+  height: 17.81170483rem;
+}
+.user_items {
+  padding: 0 1.0178117rem 1.27226463rem 1.0178117rem;
+  width: 8.54961832rem;
+  height: 100%;
+  overflow: scroll;
+  text-align: center;
+  font-size: 0.40712468rem;
+  color: #040000;
+}
+.user_items .lhead {
+  width: 6.51399491rem;
+  height: 0.61068702rem;
+  line-height: 0.55979644rem;
+  margin-top: 0.17811705rem;
+  padding-bottom: 0.05089059rem;
+  border-bottom: 0.03816794rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(90deg, #fff 0%, #fff 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+}
+.user_items .lbody {
+  position: relative;
+  width: 5.92875318rem;
+  height: 0.71246819rem;
+  margin: 0.3307888rem 0.29262087rem;
+  border: 0.02544529rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(90deg, #fcfeff 0%, #fcfeff 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+  border-radius: 0.25445293rem;
+  box-shadow: 0.10178117rem 0.10178117rem 0.50890585rem 0rem #C5EDFF4D;
+  line-height: 0.71246819rem;
+}
+.user_items .lbody span {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.user_items .lbody::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-radius: 0.05089059rem;
+  border: 0.15267176rem solid transparent;
+  border-width: 0.15267176rem 0.25445293rem;
+  border-left-color: transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(90deg, #fff 0%, #fff 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+}
+.user_items .lbody::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-radius: 0.05089059rem;
+  border: 0.15267176rem solid #fcfeff;
+  border-width: 0.15267176rem 0.25445293rem;
+  border-left-color: transparent;
+}

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>发布</title>
+    <link rel="stylesheet" href="../css/public.css" />
+    <link rel="stylesheet" href="../css/font_family.css" />
+    <link rel="stylesheet" href="../css/bottom_nav.css" />
+    <link rel="stylesheet" href="../css/popup.css" />
+    <link rel="stylesheet" href="../css/filed.css" />
+    <link rel="stylesheet" href="../css/homepage.css" />
+    <link rel="stylesheet" href="../css/resquest_form.css" />
+    <link rel="stylesheet" href="../css/issue.css" />
+    <link rel="stylesheet" href="../css/issue_activity_page.css" />
+    <link rel="stylesheet" href="../css/user_request_list_page.css" />
+    <link rel="stylesheet" href="../css/approval_request_form_page.css" />
+  </head>
+  <body>
+    <!-- 首页 -->
+    <div class="container form_list filed1">
+      <header><h1>部门名称</h1></header>
+      <section style="background-image: url(../images/empty.png)">
+        <ul class="activity_items scrollable-container"></ul>
+        <div class="footer">
+          <button class="issue_activity"></button>
+        </div>
+      </section>
+    </div>
+
+    <!-- 发布新活动 -->
+    <!-- 活动内容修改 -->
+    <div class="container issue_activity_page hide">
+      <header class="header_nav">
+        <div class="icon back"></div>
+        <h1>部门名称</h1>
+      </header>
+      <section class="filed">
+        <div class="header">
+          <h2>活动表</h2>
+        </div>
+        <div class="content">
+          <form class="activity_form">
+            <div class="activity_name">活动名称：<input type="text" name="event_name" /></div>
+            <div class="activity_type type">
+              活动类型：<span class=""></span>
+              <input class="hide" type="text" name="event_type" />
+              <ul class="options type_options hide">
+                <li>中心大会</li>
+                <li>部长级例会</li>
+                <li>主席团例会</li>
+                <li>分管部长会议</li>
+                <li>部长会议</li>
+                <li>部长干事会议</li>
+                <li>部门大会</li>
+                <li>值班活动</li>
+              </ul>
+            </div>
+            <div class="expiration_date">
+              截止时间：
+              <div class="date">
+                <div class="year">
+                  <span></span>
+                  <ul class="options date_options scrollable-container hide">
+                    <li>2024</li>
+                    <li>2025</li>
+                    <li>2026</li>
+                  </ul>
+                </div>
+                年
+                <div class="month">
+                  <span></span>
+                  <ul class="options date_options scrollable-container hide">
+                    <li>1</li>
+                    <li>2</li>
+                    <li>3</li>
+                    <li>4</li>
+                    <li>5</li>
+                    <li>6</li>
+                    <li>7</li>
+                    <li>8</li>
+                    <li>9</li>
+                    <li>10</li>
+                    <li>11</li>
+                    <li>12</li>
+                  </ul>
+                </div>
+                月
+                <div class="day">
+                  <span></span>
+                  <ul class="options date_options scrollable-container hide">
+                    <li>1</li>
+                    <li>2</li>
+                    <li>3</li>
+                    <li>4</li>
+                    <li>5</li>
+                    <li>6</li>
+                    <li>7</li>
+                    <li>8</li>
+                    <li>9</li>
+                    <li>10</li>
+                    <li>11</li>
+                    <li>12</li>
+                    <li>13</li>
+                    <li>14</li>
+                    <li>15</li>
+                    <li>16</li>
+                    <li>17</li>
+                    <li>18</li>
+                    <li>19</li>
+                    <li>20</li>
+                    <li>21</li>
+                    <li>22</li>
+                    <li>23</li>
+                    <li>24</li>
+                    <li>25</li>
+                    <li>26</li>
+                    <li>27</li>
+                    <li>28</li>
+                    <li>29</li>
+                    <li>30</li>
+                    <li>31</li>
+                  </ul>
+                </div>
+                日
+                <div class="hour">
+                  <span></span>
+                  <ul class="options date_options scrollable-container hide">
+                    <li>0</li>
+                    <li>1</li>
+                    <li>2</li>
+                    <li>3</li>
+                    <li>4</li>
+                    <li>5</li>
+                    <li>6</li>
+                    <li>7</li>
+                    <li>8</li>
+                    <li>9</li>
+                    <li>10</li>
+                    <li>11</li>
+                    <li>12</li>
+                    <li>13</li>
+                    <li>14</li>
+                    <li>15</li>
+                    <li>16</li>
+                    <li>17</li>
+                    <li>18</li>
+                    <li>19</li>
+                    <li>20</li>
+                    <li>21</li>
+                    <li>22</li>
+                    <li>23</li>
+                  </ul>
+                </div>
+                时
+              </div>
+            </div>
+            <div class="prove">
+              证明材料： <input type="radio" id="option1" name="is_photo_needed" value="1" /> <label for="option1">需要</label>
+              <input type="radio" id="option2" name="is_photo_needed" value="0" />
+              <label for="option2">不需要</label>
+            </div>
+          </form>
+        </div>
+        <div class="footer">
+          <button class="issue_btn">添加</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- 活动请假名单 -->
+    <div class="container user_request_list hide">
+      <section>
+        <div class="header">
+          <div class="active_content">
+            <div class="left">
+              <div class="title">
+                <h2 class="activity_name">活动名称</h2>
+                <h3 class="expiration_date">截止时间</h3>
+              </div>
+              <div class="type">
+                活动类型：
+                <span class="activity_type">中心大会</span>
+              </div>
+              <div class="prove">
+                是否需要证明材料：
+                <span class="prove_status">是</span>
+              </div>
+            </div>
+            <div class="right">
+              <button class="modify">修改</button>
+              <button class="delete">删除</button>
+            </div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="user_content">
+            <ul class="user_items scrollable-container">
+              <!-- <li class="lheader">正部</li>
+              <li class="lbody">
+                <div class="name">姓名</div>
+                <div class="approval_status">审批状态</div>
+                <button class="approval_btn">审批</button>
+              </li>
+              <li class="lheader">副部</li>
+              <li class="lbody">
+                <div class="name">姓名</div>
+                <div class="approval_status">审批状态</div>
+                <button class="approval_btn">审批</button>
+              </li>
+              <li class="lbody">
+                <div class="name">姓名</div>
+                <div class="approval_status">审批状态</div>
+                <button class="approval_btn">审批</button>
+              </li>
+              <li class="lbody">
+                <div class="name">姓名</div>
+                <div class="approval_status">审批状态</div>
+                <button class="approval_btn">审批</button>
+              </li>
+              <li class="lheader">干事</li>
+              <li class="lbody">
+                <div class="name">姓名</div>
+                <div class="approval_status">审批状态</div>
+                <button class="approval_btn">审批</button>
+              </li>
+              <li class="lbody">
+                <div class="name">姓名</div>
+                <div class="approval_status">审批状态</div>
+                <button class="approval_btn">审批</button>
+              </li>
+              <li class="lbody">
+                <div class="name">姓名</div>
+                <div class="approval_status">审批状态</div>
+                <button class="approval_btn">审批</button>
+              </li>
+              <li class="lbody">
+                <div class="name">姓名</div>
+                <div class="approval_status">审批状态</div>
+                <button class="approval_btn">审批</button>
+              </li>
+              <li class="lbody">
+                <div class="name">姓名</div>
+                <div class="approval_status">审批状态</div>
+                <button class="approval_btn">审批</button>
+              </li>
+              <li class="lbody">
+                <div class="name">姓名</div>
+                <div class="approval_status">审批状态</div>
+                <button class="approval_btn">审批</button>
+              </li> -->
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- <div class="container modify_activity hide">
+      
+    </div> -->
+
+    <!-- 审批请假表 -->
+    <div class="container approval_request_form request_form hide">
+      <header class="header_nav">
+        <div class="icon back"></div>
+        <h1>部门名称</h1>
+      </header>
+      <section class="filed">
+        <div class="header">
+          <h2>见面大会请假表</h2>
+        </div>
+        <div class="content">
+          <form class="user_form">
+            <div class="name">姓名：<input class="a" type="text" name="user_name" readonly /></div>
+            <div class="stu_id">学号：<input type="number" name="stu_id" readonly /></div>
+            <div class="reason">请假原因：<textarea name="reason" id="" cols="30" rows="10" readonly></textarea></div>
+            <div class="photo">
+              照片：
+              <div class="images"></div>
+            </div>
+          </form>
+        </div>
+        <div class="footer">
+          <button class="agree">同意</button>
+          <button class="disagree">不同意</button>
+        </div>
+      </section>
+    </div>
+    <footer>
+      <ul class="bottom_nav">
+        <li id="homepage">
+          <div class="icon"></div>
+          <span>首页</span>
+        </li>
+        <li id="issue" class="active">
+          <div class="icon"></div>
+          <span>发布</span>
+        </li>
+        <li id="history">
+          <div class="icon"></div>
+          <span>历史</span>
+        </li>
+        <li id="userpage">
+          <div class="icon"></div>
+          <span>我的</span>
+        </li>
+      </ul>
+    </footer>
+    <div class="popup_shadow hide">
+      <div class="popup">
+        <div class="top"></div>
+        <div class="bottom">
+          <button class="close">确定</button>
+        </div>
+      </div>
+    </div>
+    <script src="../../lib/flexible.js"></script>
+    <script src="../../lib/form-serialize.js"></script>
+    <script src="../../lib/axios.js"></script>
+    <script src="../utils/request.js"></script>
+    <script src="../js/bottom_nav.js"></script>
+    <script src="../js/issue.js"></script>
+    <script src="../js/issue_activity_page.js"></script>
+    <script src="../js/user_request_list_page.js"></script>
+    <script src="../js/approval.js"></script>
+  </body>
+</html>

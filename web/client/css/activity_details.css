@@ -1,0 +1,17 @@
+.activity_details .nav {
+  position: relative;
+  height: 1.17048346rem;
+}
+.activity_details .nav h2 {
+  position: absolute;
+  bottom: 0.02544529rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.25445293rem;
+  font-weight: 400;
+  color: #C0C0C0;
+}
+.activity_details .user_items .lbody::before,
+.activity_details .user_items .lbody::after {
+  content: none;
+}

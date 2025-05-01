@@ -1,0 +1,41 @@
+@rootFontSize: 39.3 * 1rem;
+
+.form_list {
+  section {
+    background-image: url(../images/empty.png);
+  }
+}
+
+.activity_items {
+  height: (565 / @rootFontSize)!important;
+}
+
+.footer {
+  .issue_activity {
+    width: (233 / @rootFontSize);
+    height: (28 / @rootFontSize);
+    position: absolute;
+    top: (650 / @rootFontSize);
+    left: (60 / @rootFontSize);
+    border-radius: (10 / @rootFontSize);
+    font-size: (14 / @rootFontSize);
+    color: #fff;
+    background: linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+    box-shadow: (4 / @rootFontSize) (4 / @rootFontSize) (15 / @rootFontSize) (0 / @rootFontSize) #C5EDFF66;
+
+  }
+  .issue_activity::after {
+    content: '发布新活动';
+    position: absolute;
+    top: (1 / @rootFontSize);
+    left: (1 / @rootFontSize);
+    display: block;
+    width: (231 / @rootFontSize);
+    height: (26 / @rootFontSize);
+    line-height: (26 / @rootFontSize);
+    background: #98E0FF;
+   
+    // background: #000;
+    border-radius: (10 / @rootFontSize);
+  }
+}

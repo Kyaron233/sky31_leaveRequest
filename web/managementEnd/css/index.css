@@ -1,0 +1,85 @@
+.container .login_content {
+  position: absolute;
+  top: 1.925rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12.6875rem;
+  height: 7.775rem;
+  border-radius: 0.4125rem;
+  background-color: #fff;
+  font-family: 'PingFang Medium';
+}
+.container .login_content .title {
+  position: absolute;
+  top: 0.5875rem;
+  left: 2.4125rem;
+  width: 8.5625rem;
+  height: 2.275rem;
+  color: #000;
+  text-align: center;
+  font-family: '寒蝉团圆体(圆体)';
+}
+.container .login_content .title h1 {
+  font-size: 0.6rem;
+  font-weight: 400;
+  margin-bottom: 0.125rem;
+}
+.container .login_content .title h2 {
+  position: absolute;
+  top: 1.625rem;
+  right: 0;
+  font-size: 0.4rem;
+  font-weight: 400;
+  text-align: right;
+}
+.container .login_content .login {
+  position: absolute;
+  top: 3.0625rem;
+  left: 2rem;
+  width: 8.6875rem;
+}
+.container .login_content .login .user_form {
+  height: 1.875rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.container .login_content .login .user_form .input_filed {
+  width: 100%;
+  height: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.container .login_content .login .user_form .input_filed span {
+  font-size: 0.4rem;
+}
+.container .login_content .login .user_form .input_filed input {
+  padding: 0 0.2875rem;
+  width: 7.15rem;
+  height: 0.75rem;
+  background: #EBEBEB;
+  border-radius: 0.125rem;
+  vertical-align: middle;
+  line-height: 0.35rem;
+  font-family: 'PingFang Regular';
+}
+.container .login_content .login .user_form .input_filed input::-webkit-input-placeholder {
+  font-size: 0.25rem;
+  color: #C0C0C0;
+  font-family: 'PingFang Regular';
+}
+.container .login_content .login_btn {
+  position: absolute;
+  bottom: 1.4125rem;
+  left: 2rem;
+  width: 8.6875rem;
+  height: 0.75rem;
+  border-radius: 0.125rem;
+  background: linear-gradient(90deg, #CFD7F8 0%, #B7DDFB 36.29%, #98E0FF 100%);
+  color: #fff;
+  font-size: 0.25rem;
+  font-weight: 500;
+  font-family: 'PingFang Medium';
+  cursor: pointer;
+}

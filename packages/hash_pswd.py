@@ -21,4 +21,3 @@ def hash_pswd(raw_password: str) :
     hashed_password_str = hashed_password.decode('utf-8')
     return hashed_password_str # 返回值应修改成普通字符串
 
-

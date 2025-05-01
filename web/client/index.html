@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>请假系统</title>
+    <link rel="stylesheet" href="./css/public.css" />
+    <link rel="stylesheet" href="./css/font_family.css" />
+    <link rel="stylesheet" href="./css/popup.css" />
+    <link rel="stylesheet" href="./css/index.css" />
+  </head>
+  <body class="">
+    <header>
+      <div class="title">
+        <h1 class="h2">三翼·青媒融媒体中心</h1>
+        <h1 class="h1">请假系统</h1>
+      </div>
+    </header>
+    <section>
+      <div class="input_fields">
+        <form class="user_form">
+          <div class="input_field select">
+            <span class="department">部门<span>>丨</span></span
+            ><span class="department_name">请选择部门</span>
+          </div>
+          <input class="hide" type="text" name="department" />
+          <input class="input_field" type="number" placeholder="请输入学号" name="student_id" value="202405134209" />
+          <input class="input_field" type="password" placeholder="请输入密码" name="password" value="aabb123456" />
+          <span class="forget_pwd"><a href="./page/reset_pwd.html">忘记密码</a></span>
+        </form>
+      </div>
+      <ul class="options hide">
+        <li><a href="javascript:" value="" onclick="check(event)">主席团</a></li>
+        <li><a href="javascript:" value="" onclick="check(event)">行政人事部</a></li>
+        <li><a href="javascript:" value="" onclick="check(event)">企划公关部</a></li>
+        <li><a href="javascript:" value="" onclick="check(event)">新闻通讯社</a></li>
+        <li><a href="javascript:" value="" onclick="check(event)">外宣部</a></li>
+        <li><a href="javascript:" value="" onclick="check(event)">微信推文部</a></li>
+        <li><a href="javascript:" value="" onclick="check(event)">媒体运营部</a></li>
+        <li><a href="javascript:" value="" onclick="check(event)">翼工坊</a></li>
+        <li><a href="javascript:" value="" onclick="check(event)">设计部</a></li>
+        <li><a href="javascript:" value="" onclick="check(event)">产品经理与产品运营部</a></li>
+        <li><a href="javascript:" value="" onclick="check(event)">技术研发部</a></li>
+        <li><a href="javascript:" value="" onclick="check(event)">音视频工作室</a></li>
+      </ul>
+    </section>
+    <footer>
+      <button class="login">登录</button>
+    </footer>
+    <div class="popup_shadow hide">
+      <div class="popup">
+        <div class="top">输入错误！</div>
+        <div class="bottom">
+          <button class="close">确定</button>
+          <!-- <button class="cancle close">取消</button> -->
+        </div>
+      </div>
+    </div>
+    <script src="../lib/flexible.js"></script>
+    <script src="../lib/form-serialize.js"></script>
+    <script src="../lib/axios.js"></script>
+    <script src="./utils/request.js"></script>
+    <script src="./js/index.js"></script>
+  </body>
+</html>

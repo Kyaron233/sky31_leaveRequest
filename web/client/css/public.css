@@ -1,0 +1,62 @@
+* {
+  /* 清除内外边框及边框线 */
+  border: 0;
+  margin: 0;
+  padding: 0;
+
+  /* 内减模式 */
+  box-sizing: border-box;
+}
+
+/* 清除列表默认样式 */
+ul,
+li,
+ol {
+  list-style: none;
+}
+
+/* 清除a标签下划线 */
+a {
+  text-decoration: none;
+
+}
+/* 去除点击时的背景色 */
+a:hover{
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 去除表单轮廓 */
+input {
+  outline: none;
+}
+
+/* 清除浮动（高度塌陷），同时解决外边距塌陷问题 */
+.clearfix::before,
+.clearfix::after {
+  content: '';
+  display: table;
+}
+.clear::after {
+  clear: both;
+  /* 兼容低版本浏览器 */
+  height: 0;
+  visibility: hidden;
+}
+
+/* 隐藏滚动条 */
+
+.scrollable-container::-webkit-scrollbar {
+  display: none;
+}
+.scrollable-container {
+  scrollbar-width: none;
+}
+.scrollable-container {
+  -ms-overflow-style: none;
+}
+
+
+
+.hide {
+  display: none!important;
+}

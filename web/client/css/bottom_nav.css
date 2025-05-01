@@ -1,0 +1,56 @@
+footer {
+  position: fixed;
+  bottom: 0;
+  z-index: 500;
+  width: 100%;
+  height: 2.11195929rem;
+  background: #FFF;
+  font-size: 0.25445293rem;
+  font-weight: 600;
+  font-family: 'PingFang Medium';
+  color: #A6A6A6;
+  box-shadow: 0rem -0.10178117rem 0.50890585rem 0rem #0000000F;
+}
+footer .bottom_nav {
+  width: 100%;
+  height: 100%;
+  padding: 0.12722646rem 0.61068702rem;
+  display: flex;
+  justify-content: space-between;
+}
+footer .bottom_nav li {
+  text-align: center;
+  margin: 0 0.3562341rem;
+}
+footer .bottom_nav li .icon {
+  margin: 0.12722646rem 0;
+  width: 0.76335878rem;
+  height: 0.76335878rem;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+footer .bottom_nav #homepage .icon {
+  background-image: url(../images/homepage-grey.png);
+}
+footer .bottom_nav #issue .icon {
+  background-image: url(../images/issue-grey.png);
+}
+footer .bottom_nav #history .icon {
+  background-image: url(../images/history-grey.png);
+}
+footer .bottom_nav #userpage .icon {
+  background-image: url(../images/my-grey.png);
+}
+footer .bottom_nav #homepage.active .icon {
+  background-image: url(../images/homepage.png);
+}
+footer .bottom_nav #issue.active .icon {
+  background-image: url(../images/issue.png);
+}
+footer .bottom_nav #history.active .icon {
+  background-image: url(../images/history.png);
+}
+footer .bottom_nav #userpage.active .icon {
+  background-image: url(../images/my.png);
+}

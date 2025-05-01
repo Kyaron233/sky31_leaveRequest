@@ -1,0 +1,50 @@
+@rootFontSize: 80 * 1rem;
+
+.popup_shadow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  background: #20202033;
+  font-family: 'PingFang Semibold';
+}
+.popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: (650 / @rootFontSize);
+  height: (300 / @rootFontSize);
+  border-radius: (10 / @rootFontSize);
+  background-color: #FBFBFB;
+  text-align: center;
+  font-size: (28 / @rootFontSize);
+  font-weight: 500;
+  color: #000;
+  .top {
+    width: 100%;
+    height: (220 / @rootFontSize);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: (1 / @rootFontSize) solid #C0C0C0;
+  }
+  .bottom {
+    display: flex;
+    width: 100%;
+    height: (80 / @rootFontSize);
+    line-height: (80 / @rootFontSize);
+    button {
+      flex: 1;
+      color: #FFBAD3;
+      text-shadow: (0 / @rootFontSize) (2 / @rootFontSize) (4 / @rootFontSize)  #00000026;
+      font-size: (28 / @rootFontSize);
+      background-color: #fff;
+    }
+    .cancle {
+      border-left: 1px solid #C0C0C0;
+    }
+ }
+}

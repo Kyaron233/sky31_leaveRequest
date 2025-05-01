@@ -1,0 +1,91 @@
+@rootFontSize: 80 * 1rem;
+
+
+
+.container {
+  .login_content {
+    position: absolute;
+    top: (154 / @rootFontSize);
+    left: 50%;
+    transform: translateX(-50%);
+    width: (1015 / @rootFontSize);
+    height: (622 / @rootFontSize);
+    border-radius: (33 / @rootFontSize);
+    background-color: #fff;
+    font-family: 'PingFang Medium';
+    .title {
+      position: absolute;
+      top: (47 / @rootFontSize);
+      left: (193 / @rootFontSize);
+      width: (685 / @rootFontSize);
+      height: (182 / @rootFontSize);
+      color: #000;
+      text-align: center;
+      font-family: '寒蝉团圆体(圆体)';
+      h1 {
+        font-size: (48 / @rootFontSize);
+        font-weight: 400;
+        margin-bottom: (10 / @rootFontSize);
+      }
+      h2 {
+        position: absolute;
+        top: (130 / @rootFontSize);
+        right: 0;
+        font-size: (32 / @rootFontSize);
+        font-weight: 400;
+        text-align: right;
+      }
+    }
+    .login {
+      position: absolute;
+      top: (245 / @rootFontSize);
+      left: (160 / @rootFontSize);
+      width: (695 / @rootFontSize);
+      .user_form {
+        height: (150 / @rootFontSize);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        .input_filed {
+          width: 100%;
+          height: (60 / @rootFontSize);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          span {
+            font-size: (32 / @rootFontSize);
+          }
+          input {
+            padding: 0 (23 / @rootFontSize);
+            width: (572 / @rootFontSize);
+            height: (60 / @rootFontSize);
+            background: #EBEBEB;
+            border-radius: (10 / @rootFontSize);
+            vertical-align: middle;
+            line-height: (28 / @rootFontSize);
+            font-family: 'PingFang Regular';
+          }
+          input::-webkit-input-placeholder {
+            font-size: (20 / @rootFontSize);
+            color: #C0C0C0;
+            font-family: 'PingFang Regular';
+          }
+        }
+      }
+    }
+    .login_btn {
+      position: absolute;
+      bottom: (113 / @rootFontSize);
+      left: (160 / @rootFontSize);
+      width: (695 / @rootFontSize);
+      height: (60 / @rootFontSize);
+      border-radius: (10 / @rootFontSize);
+      background: linear-gradient(90deg, #CFD7F8 0%, #B7DDFB 36.29%, #98E0FF 100%);
+      color: #fff;
+      font-size: (20 / @rootFontSize);
+      font-weight: 500;
+      font-family: 'PingFang Medium';
+      cursor: pointer;
+    }
+  }
+}

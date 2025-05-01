@@ -1,0 +1,40 @@
+@rootFontSize: 39.3 * 1rem;
+
+.activity_items {
+  .item {
+    align-items: center;
+    .activity_name {
+      width: (100 / @rootFontSize)!important;
+      margin: 0!important;
+    }
+    .approval_status {
+      min-width: (42 / @rootFontSize);
+      font-size: (14 / @rootFontSize);
+      margin-left: (15 / @rootFontSize);
+    }
+    button {
+      margin-left: (15 / @rootFontSize);
+      width: (48 / @rootFontSize);
+      height: (19 / @rootFontSize);
+      border-radius: (10 / @rootFontSize);
+      background: #c0c0c0;
+      font-size: (14 / @rootFontSize);
+      color: #fff;
+    }
+    .cancel {
+      background-color: #fff;
+      color: #3a3a3a;
+    }
+  }
+  .approved {
+    .cancel {
+      visibility: hidden;
+    }
+  }
+  .approved.agree {
+    background: #FFBAD3!important;
+  }
+  .approved.disagree {
+    background: #EBEBEB!important;
+  }
+}

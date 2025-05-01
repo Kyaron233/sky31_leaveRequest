@@ -1,0 +1,72 @@
+@rootFontSize: 39.3 * 1rem;
+
+body {
+  font-family: 'PingFang Regular';
+  background-image: url(../images/verify.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+.container {
+  position: absolute;
+  top: (54 / @rootFontSize);
+  left: (20 / @rootFontSize);
+  width: (353 / @rootFontSize);
+  height: (777 / @rootFontSize);
+  background: #FFFC;
+  border-radius: (15 / @rootFontSize);
+  header {
+    h1 {
+      position: absolute;
+      top: (32 / @rootFontSize);
+      left: (144 / @rootFontSize);
+      font-size: (16 / @rootFontSize);
+      font-weight: 600;
+      font-family: 'PingFang Semibold';
+    }
+   
+  }
+  section {
+    .input_fields {
+      position: absolute;
+      top: (74 / @rootFontSize);
+      left: (16 / @rootFontSize);
+      color: #A6A6A6;
+  
+      .input_field {
+        margin: (10 / @rootFontSize) 0;
+        padding: 0 0 0 (27 / @rootFontSize);
+        width: (320 / @rootFontSize);
+        height: (60 / @rootFontSize);
+        line-height: (60 / @rootFontSize);
+        border: none;      
+        border-radius: (10 / @rootFontSize);
+        background: #D9D9D980;
+        font-size: (15 / @rootFontSize);
+        color: #3A3A3A;
+        font-family: 'PingFang Regular';
+      }
+      input::-webkit-input-placeholder {
+        font-size: (15 / @rootFontSize);
+        color: #A6A6A6;
+      }
+    }
+  }
+
+  footer {
+    .submit {
+      position: absolute;
+      top: (346 / @rootFontSize);
+      left: (16 / @rootFontSize);
+      width: (320 / @rootFontSize);
+      height: (60 / @rootFontSize);
+      border-radius: (10 / @rootFontSize);
+      background: linear-gradient(90deg, #CFD7F8 0%, #B7DDFB 36.29%, #98E0FF 100%);
+      font-size: (16 / @rootFontSize);
+      color: #FFF;
+      box-shadow: (0 / @rootFontSize) (4 / @rootFontSize) (4 / @rootFontSize) (0 / @rootFontSize) #00000040;
+      font-family: 'PingFang Medium';
+    }
+  }
+}

@@ -1,0 +1,105 @@
+@rootFontSize: 80 * 1rem;
+
+#member_message {
+  padding: (33 / @rootFontSize) (48 / @rootFontSize);
+  font-family: 'PingFang Regular';
+  .department_title {
+    height: (56 / @rootFontSize);
+    h1 {
+      line-height: (56 / @rootFontSize);
+      font-size: (40 / @rootFontSize);
+      font-weight: 600;
+      color: #000;
+    }
+  }
+  .message_content {
+    width: (1497 / @rootFontSize);
+    height: (793 / @rootFontSize);
+    margin: (20 / @rootFontSize) (4 / @rootFontSize);
+    padding: (30 / @rootFontSize) (28 / @rootFontSize) (30 / @rootFontSize) (42 / @rootFontSize);
+    border-radius: (10 / @rootFontSize);
+    border: (1 / @rootFontSize) solid transparent;
+    background-clip: padding-box, border-box;
+    background-origin: padding-box, border-box;
+    background-image: linear-gradient(90deg, #fff 0%,  #fff 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+    .member_items {
+      width: 100%;
+      height: 100%;
+      overflow-y: scroll;
+      font-weight: 500;
+      color: #000;
+      .lhead {
+        span {
+          display: inline-block;
+          padding: 0 23px;
+          // width: (110 / @rootFontSize);
+          height: (48 / @rootFontSize);
+          border-radius: (10 / @rootFontSize);
+          background: #98E0FFB2;
+          font-size: (30 / @rootFontSize);
+          text-align: center;
+          line-height: (48 / @rootFontSize);
+          font-family: 'PingFang Medium';
+        }
+      }
+      .lbody {
+        width: (1335 / @rootFontSize);
+        height: (53 / @rootFontSize);
+        margin: (30 / @rootFontSize) (21 / @rootFontSize);
+        padding: (8 / @rootFontSize) (65 / @rootFontSize) (8 / @rootFontSize) (36 / @rootFontSize);
+        border-radius: (10 / @rootFontSize);
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        border: (2 / @rootFontSize) solid transparent;
+        background-clip: padding-box, border-box;
+        background-origin: padding-box, border-box;
+        background-image: linear-gradient(90deg, #fff 0%,  #fff 100%), linear-gradient(90deg, #FFBAD3 0%, #F7D4EF 68.4%, #E1DCFF 100%);
+        font-size: (24 / @rootFontSize);
+        div {
+          overflow: hidden;        
+          text-overflow: ellipsis;        
+          white-space: nowrap;
+        }
+        .name {
+          width:( 80 / @rootFontSize);
+          margin-right: (165 / @rootFontSize);
+        }
+        .student_id {
+          width: (250 / @rootFontSize);
+          margin-right: (215 / @rootFontSize);
+        }
+        .tel {
+          width: (235 / @rootFontSize);
+          margin-right: (200 / @rootFontSize);
+        }
+        .delete {
+          width: (88 / @rootFontSize);
+          height: (38 / @rootFontSize);
+          border-radius: (10 / @rootFontSize);
+          background: #98E0FFB2;
+          font-size: (24 / @rootFontSize);
+          font-weight: 500;
+          font-family: 'PingFang Medium';
+          color: #000;
+        }
+      }
+    }
+    /* 滚动条整体部分 */
+    .member_items::-webkit-scrollbar {
+      width: (9 / @rootFontSize);
+    }
+
+    /* 滚动条的轨道 */
+    .member_items::-webkit-scrollbar-track {
+      background: #eee;        /* 轨道颜色 */
+      border-radius: (5 / @rootFontSize);
+    }
+
+    /* 滚动条里面可以拖动的那部分 */
+    .member_items::-webkit-scrollbar-thumb {
+      background: #ffbad3;          /* 滑块颜色 */
+      border-radius: (5 / @rootFontSize);       /* 滑块圆角 */
+    }  
+  }
+}

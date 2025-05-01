@@ -279,7 +279,7 @@ def query_leaveRequest(event_id):
         else:
             # 返回照片数量，前端看情况调用获取照片的接口
             if True:  #懒得改缩进了。。。。
-                whoLeave_photo={}
+
                 whoLeave_photo=get_photos(student_id,event_id)
                 return jsonify({"event": event['whoLeave_event'],
                                 "whoLeave_id": event['whoLeave_id'],

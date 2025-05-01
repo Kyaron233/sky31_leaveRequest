@@ -1,0 +1,204 @@
+@rootFontSize: 39.3 * 1rem;
+
+.issue_activity_page {
+  .filed {
+    padding-right: (12 / @rootFontSize);
+    .content {
+      div {
+        margin: (35 / @rootFontSize) 0;
+        color: #3A3A3A;
+      }
+      .activity_name,
+      .activity_type {
+        position: relative;
+        height: (28 / @rootFontSize);
+        line-height: (28 / @rootFontSize);
+        
+        input,
+        span {
+          display: inline-block;
+          position: relative;
+          z-index: 5;
+          width: (221 / @rootFontSize);
+          height: (28 / @rootFontSize);
+          line-height: (28 / @rootFontSize);
+          // padding: (3 / @rootFontSize) 0;
+          vertical-align: middle;
+          // margin: (1 / @rootFontSize) 0;
+          border-radius: (10 / @rootFontSize);
+          text-align: center;
+          font-size: (14 / @rootFontSize);
+          box-shadow: (4 / @rootFontSize) (4 / @rootFontSize) (20 / @rootFontSize) (0 / @rootFontSize) #C5EDFF4D;
+          color: #A6A6A6;
+          border: (1 / @rootFontSize) solid transparent;
+          // background-color: #fff;
+          background-clip: padding-box, border-box;
+          background-origin: padding-box, border-box;
+          background-image: linear-gradient(to right, #fff, #fff), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+          
+        }
+  
+  
+      }
+  
+      .activity_type {
+        span::after {
+          content: '';
+          position: absolute;
+          top: (10 / @rootFontSize);
+          right: (9 / @rootFontSize);
+          width: (0 / @rootFontSize);
+          height: (0 / @rootFontSize);
+          border: (6 / @rootFontSize) solid transparent;
+          border-top-color: #B7DDFB;
+          border-bottom-color: transparent;
+        }
+        .active::after {
+          border-top: transparent;
+          border-bottom-color: #B7DDFB;
+        }
+        .type_options {
+          position: absolute;
+          top: (14 / @rootFontSize);
+          right: (46 / @rootFontSize);
+          z-index: 10;
+          width: (130 / @rootFontSize);
+          height: (140 / @rootFontSize);
+          font-size: (10 / @rootFontSize);
+          background-color: #fff;
+          box-shadow: (4 / @rootFontSize) (4 / @rootFontSize) (10 / @rootFontSize) (0 / @rootFontSize) #C0C0C066;
+  
+          li {
+            width: 100%;
+            height: (17.5 / @rootFontSize);
+            // a {
+            //   display: block;
+            //   width: 100%;
+            //   height: 100%;
+              line-height: (16 / @rootFontSize);
+              padding: 0 (10 / @rootFontSize);
+              color: #A6A6A6;
+  
+            // }
+          }
+  
+        }
+      }
+      .checked {
+        background: #98E0FF99;
+        color: #3A3A3A;
+        a {
+          color: #3A3A3A!important;
+        }
+      }
+      .expiration_date {
+        width: (263 / @rootFontSize);
+        height: (72 / @rootFontSize);
+        .date {
+          margin-top: (14 / @rootFontSize);
+          width: (263 / @rootFontSize);
+          height: (36 / @rootFontSize);
+          display: flex;
+          align-items: center;
+          font-size: (14 / @rootFontSize);
+  
+          div {
+            position: relative;
+            z-index: 5;
+            width: (35 / @rootFontSize);
+            height: (34 / @rootFontSize);
+            margin: 0 (6 / @rootFontSize);
+            box-shadow: (4 / @rootFontSize) (4 / @rootFontSize) (20 / @rootFontSize) (0 / @rootFontSize) #C5EDFF4D;
+            border-radius: (8 / @rootFontSize);
+            border: (1 / @rootFontSize) solid transparent;
+            // background-color: #fff;
+            background-clip: padding-box, border-box;
+            background-origin: padding-box, border-box;
+            background-image: linear-gradient(to right, #fff, #fff), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+            text-align: center;
+            line-height: (34 / @rootFontSize);
+            span {
+              font-size: (14 / @rootFontSize);
+              color: #A6A6A6;
+              text-align: center;
+            }
+            .date_options {
+              position: absolute;
+              top: (23 / @rootFontSize);
+              left: 50%;
+              transform: translateX(-50%);
+              width: (20 / @rootFontSize);
+              height: (240 / @rootFontSize);
+              background: #fff;
+              box-shadow: (4 / @rootFontSize) (4 / @rootFontSize) (10 / @rootFontSize) (0 / @rootFontSize) #C0C0C066;
+              color: #A6A6A6;
+              text-align: center;
+              overflow: scroll;
+              li {
+                height: (20 / @rootFontSize);
+                line-height: (20 / @rootFontSize);
+                font-size: (14 / @rootFontSize);
+              }
+            }
+          }
+          div:first-child {
+            width: (54 / @rootFontSize);
+            margin-left: 0;
+            .date_options {
+              width: (46 / @rootFontSize);
+              height: (60 / @rootFontSize);
+            }
+          }
+        }
+      }
+      .prove {
+        display: flex;
+        align-items: center;
+        height: (26 / @rootFontSize);
+        input {
+          position: relative;
+          appearance: none;
+          outline: none;
+          width: (22 / @rootFontSize);
+          height: (22 / @rootFontSize);
+          margin: 0 (5 / @rootFontSize);
+          border: (1 / @rootFontSize) solid transparent;
+          border-radius: (6 / @rootFontSize);
+          background-clip: padding-box, border-box;
+          background-origin: padding-box, border-box;
+          background-image: linear-gradient(to right, #fff, #fff), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+          
+        }
+        input:checked::after {
+          content: '✔';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: (14 / @rootFontSize);
+          font-weight: 900;
+          color: #FFBAD3;
+        }
+      }
+    }
+    .footer {
+      .issue_btn {
+        width: (233 / @rootFontSize);
+        height: (30 / @rootFontSize);
+        position: absolute;
+        top: (446 / @rootFontSize);
+        left: (60 / @rootFontSize);
+        border-radius: (10 / @rootFontSize);
+        box-shadow: (0 / @rootFontSize) (1 / @rootFontSize) (2 / @rootFontSize) (0 / @rootFontSize) #00000040;
+        border: (1 / @rootFontSize) solid transparent;
+        background-clip: padding-box, border-box;
+        background-origin: padding-box, border-box;
+        background-image: linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+        font-size: (14 / @rootFontSize);
+        font-weight: 600;
+        color: #fff;
+  
+      }
+    }
+  }
+}

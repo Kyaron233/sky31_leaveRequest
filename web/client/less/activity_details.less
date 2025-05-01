@@ -1,0 +1,23 @@
+@rootFontSize: 39.3 * 1rem;
+
+.activity_details {
+  .nav {
+    position: relative;
+    height: (46 / @rootFontSize);
+    h2 {
+      position: absolute;
+      bottom: (1 / @rootFontSize);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: (10 / @rootFontSize);
+      font-weight: 400;
+      color: #C0C0C0;
+    }
+  }
+  .user_items {
+    .lbody::before,
+    .lbody::after {
+      content: none;
+    }
+  }
+}

@@ -1,0 +1,21 @@
+.approval_request_form .filed .footer {
+  padding: 0 0.20356234rem;
+  display: flex;
+  justify-content: space-between;
+}
+.approval_request_form .filed .footer button {
+  width: 2.67175573rem;
+  height: 0.71246819rem;
+  border-radius: 0.25445293rem;
+  font-size: 0.3562341rem;
+  color: #fff;
+  border: 0.02544529rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+}
+.approval_request_form .filed .footer .agree {
+  background-image: linear-gradient(90deg, #98E0FF 0%, #98E0FF 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+}
+.approval_request_form .filed .footer .disagree {
+  background-image: linear-gradient(90deg, #FFBAD3 0%, #FFBAD3 100%), linear-gradient(90deg, #FFBAD3 0%, #F7D4EF 68.4%, #E1DCFF 100%);
+}

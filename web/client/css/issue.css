@@ -1,0 +1,30 @@
+.form_list section {
+  background-image: url(../images/empty.png);
+}
+.activity_items {
+  height: 14.37659033rem !important;
+}
+.footer .issue_activity {
+  width: 5.92875318rem;
+  height: 0.71246819rem;
+  position: absolute;
+  top: 16.5394402rem;
+  left: 1.52671756rem;
+  border-radius: 0.25445293rem;
+  font-size: 0.3562341rem;
+  color: #fff;
+  background: linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+  box-shadow: 0.10178117rem 0.10178117rem 0.38167939rem 0rem #C5EDFF66;
+}
+.footer .issue_activity::after {
+  content: '发布新活动';
+  position: absolute;
+  top: 0.02544529rem;
+  left: 0.02544529rem;
+  display: block;
+  width: 5.8778626rem;
+  height: 0.66157761rem;
+  line-height: 0.66157761rem;
+  background: #98E0FF;
+  border-radius: 0.25445293rem;
+}

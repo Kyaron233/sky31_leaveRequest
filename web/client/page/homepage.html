@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>首页</title>
+    <link rel="stylesheet" href="../css/public.css" />
+    <link rel="stylesheet" href="../css/font_family.css" />
+    <link rel="stylesheet" href="../css/bottom_nav.css" />
+    <link rel="stylesheet" href="../css/popup.css" />
+    <link rel="stylesheet" href="../css/filed.css" />
+    <link rel="stylesheet" href="../css/homepage.css" />
+    <link rel="stylesheet" href="../css/resquest_form.css" />
+  </head>
+  <body>
+    <div class="container form_list filed1">
+      <header><h1 class="department_name">部门名称</h1></header>
+      <section>
+        <ul class="activity_items scrollable-container"></ul>
+      </section>
+    </div>
+    <div class="container request_form hide">
+      <header class="header_nav">
+        <div class="icon back"></div>
+        <h1>部门名称</h1>
+      </header>
+      <section class="filed">
+        <div class="header">
+          <h2>见面大会请假表</h2>
+        </div>
+        <div class="content">
+          <form class="user_form">
+            <div class="name">姓名：<input type="text" name="user_name" /></div>
+            <!-- <div class="stu_id">学号：<input type="number" name="stu_id" /></div> -->
+            <div class="reason">请假原因：<textarea name="reason" id="" cols="30" rows="10"></textarea></div>
+            <div class="photo">
+              照片：
+              <div class="images">
+                <!-- <div class="image_ele"><span class="delete">×</span><img src="" alt="" /></div> -->
+                <!-- <div class="image_ele"><img src="" alt="" /></div> -->
+                <div class="add_image">
+                  + 添加图片
+                  <br />
+                  <span>图片要求：最多三张</span>
+                </div>
+              </div>
+              <input class="image_file hide" type="file" name="images[]" multiple />
+            </div>
+          </form>
+        </div>
+        <div class="footer">
+          <button class="submit">提交</button>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <ul class="bottom_nav">
+        <li id="homepage" class="active">
+          <div class="icon"></div>
+          <span>首页</span>
+        </li>
+        <li id="issue">
+          <div class="icon"></div>
+          <span>发布</span>
+        </li>
+        <li id="history">
+          <div class="icon"></div>
+          <span>历史</span>
+        </li>
+        <li id="userpage">
+          <div class="icon"></div>
+          <span>我的</span>
+        </li>
+      </ul>
+    </footer>
+    <div class="popup_shadow hide">
+      <div class="popup">
+        <div class="top"></div>
+        <div class="bottom">
+          <button class="close">确定</button>
+          <!-- <button class="cancle close">取消</button> -->
+        </div>
+      </div>
+    </div>
+    <script src="../../lib/flexible.js"></script>
+    <script src="../../lib/form-serialize.js"></script>
+    <script src="../../lib/axios.js"></script>
+    <script src="../utils/request.js"></script>
+    <script src="../js/bottom_nav.js"></script>
+    <script src="../js/homepage.js"></script>
+    <script src="../js/resquest_form.js"></script>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+@font-face {
+  font-family: 'PingFang Light';
+  src: url('../../PingFang/PingFang Light.ttf');
+}
+@font-face {
+  font-family: 'PingFang Medium';
+  src: url('../../PingFang/PingFang Medium.ttf');
+}
+@font-face {
+  font-family: 'PingFang Regular';
+  src: url('../../PingFang/PingFang Regular.ttf');
+}
+@font-face {
+  font-family: 'PingFang Semibold';
+  src: url('../../PingFang/PingFang Semibold.ttf');
+}
+@font-face {
+  font-family: '寒蝉团圆体(圆体)';
+  src: url('../../ChillReunion/ChillReunion_Round（圆体）.otf');
+}
+@font-face {
+  font-family: '寒蝉团圆体(黑体)';
+  src: url('../../ChillReunion/ChillReunion_Sans（黑体）.otf');
+}

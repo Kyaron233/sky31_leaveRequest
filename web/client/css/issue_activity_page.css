@@ -1,0 +1,176 @@
+.issue_activity_page .filed {
+  padding-right: 0.30534351rem;
+}
+.issue_activity_page .filed .content div {
+  margin: 0.89058524rem 0;
+  color: #3A3A3A;
+}
+.issue_activity_page .filed .content .activity_name,
+.issue_activity_page .filed .content .activity_type {
+  position: relative;
+  height: 0.71246819rem;
+  line-height: 0.71246819rem;
+}
+.issue_activity_page .filed .content .activity_name input,
+.issue_activity_page .filed .content .activity_type input,
+.issue_activity_page .filed .content .activity_name span,
+.issue_activity_page .filed .content .activity_type span {
+  display: inline-block;
+  position: relative;
+  z-index: 5;
+  width: 5.62340967rem;
+  height: 0.71246819rem;
+  line-height: 0.71246819rem;
+  vertical-align: middle;
+  border-radius: 0.25445293rem;
+  text-align: center;
+  font-size: 0.3562341rem;
+  box-shadow: 0.10178117rem 0.10178117rem 0.50890585rem 0rem #C5EDFF4D;
+  color: #A6A6A6;
+  border: 0.02544529rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(to right, #fff, #fff), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+}
+.issue_activity_page .filed .content .activity_type span::after {
+  content: '';
+  position: absolute;
+  top: 0.25445293rem;
+  right: 0.22900763rem;
+  width: 0rem;
+  height: 0rem;
+  border: 0.15267176rem solid transparent;
+  border-top-color: #B7DDFB;
+  border-bottom-color: transparent;
+}
+.issue_activity_page .filed .content .activity_type .active::after {
+  border-top: transparent;
+  border-bottom-color: #B7DDFB;
+}
+.issue_activity_page .filed .content .activity_type .type_options {
+  position: absolute;
+  top: 0.3562341rem;
+  right: 1.17048346rem;
+  z-index: 10;
+  width: 3.30788804rem;
+  height: 3.56234097rem;
+  font-size: 0.25445293rem;
+  background-color: #fff;
+  box-shadow: 0.10178117rem 0.10178117rem 0.25445293rem 0rem #C0C0C066;
+}
+.issue_activity_page .filed .content .activity_type .type_options li {
+  width: 100%;
+  height: 0.44529262rem;
+  line-height: 0.40712468rem;
+  padding: 0 0.25445293rem;
+  color: #A6A6A6;
+}
+.issue_activity_page .filed .content .checked {
+  background: #98E0FF99;
+  color: #3A3A3A;
+}
+.issue_activity_page .filed .content .checked a {
+  color: #3A3A3A !important;
+}
+.issue_activity_page .filed .content .expiration_date {
+  width: 6.69211196rem;
+  height: 1.83206107rem;
+}
+.issue_activity_page .filed .content .expiration_date .date {
+  margin-top: 0.3562341rem;
+  width: 6.69211196rem;
+  height: 0.91603053rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.3562341rem;
+}
+.issue_activity_page .filed .content .expiration_date .date div {
+  position: relative;
+  z-index: 5;
+  width: 0.89058524rem;
+  height: 0.86513995rem;
+  margin: 0 0.15267176rem;
+  box-shadow: 0.10178117rem 0.10178117rem 0.50890585rem 0rem #C5EDFF4D;
+  border-radius: 0.20356234rem;
+  border: 0.02544529rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(to right, #fff, #fff), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+  text-align: center;
+  line-height: 0.86513995rem;
+}
+.issue_activity_page .filed .content .expiration_date .date div span {
+  font-size: 0.3562341rem;
+  color: #A6A6A6;
+  text-align: center;
+}
+.issue_activity_page .filed .content .expiration_date .date div .date_options {
+  position: absolute;
+  top: 0.58524173rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.50890585rem;
+  height: 6.10687023rem;
+  background: #fff;
+  box-shadow: 0.10178117rem 0.10178117rem 0.25445293rem 0rem #C0C0C066;
+  color: #A6A6A6;
+  text-align: center;
+  overflow: scroll;
+}
+.issue_activity_page .filed .content .expiration_date .date div .date_options li {
+  height: 0.50890585rem;
+  line-height: 0.50890585rem;
+  font-size: 0.3562341rem;
+}
+.issue_activity_page .filed .content .expiration_date .date div:first-child {
+  width: 1.3740458rem;
+  margin-left: 0;
+}
+.issue_activity_page .filed .content .expiration_date .date div:first-child .date_options {
+  width: 1.17048346rem;
+  height: 1.52671756rem;
+}
+.issue_activity_page .filed .content .prove {
+  display: flex;
+  align-items: center;
+  height: 0.66157761rem;
+}
+.issue_activity_page .filed .content .prove input {
+  position: relative;
+  appearance: none;
+  outline: none;
+  width: 0.55979644rem;
+  height: 0.55979644rem;
+  margin: 0 0.12722646rem;
+  border: 0.02544529rem solid transparent;
+  border-radius: 0.15267176rem;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(to right, #fff, #fff), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+}
+.issue_activity_page .filed .content .prove input:checked::after {
+  content: '✔';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.3562341rem;
+  font-weight: 900;
+  color: #FFBAD3;
+}
+.issue_activity_page .filed .footer .issue_btn {
+  width: 5.92875318rem;
+  height: 0.76335878rem;
+  position: absolute;
+  top: 11.34860051rem;
+  left: 1.52671756rem;
+  border-radius: 0.25445293rem;
+  box-shadow: 0rem 0.02544529rem 0.05089059rem 0rem #00000040;
+  border: 0.02544529rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+  font-size: 0.3562341rem;
+  font-weight: 600;
+  color: #fff;
+}

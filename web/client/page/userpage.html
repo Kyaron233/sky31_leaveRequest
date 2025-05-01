@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>我的</title>
+    <link rel="stylesheet" href="../css/public.css" />
+    <link rel="stylesheet" href="../css/font_family.css" />
+    <link rel="stylesheet" href="../css/bottom_nav.css" />
+    <link rel="stylesheet" href="../css/popup.css" />
+    <link rel="stylesheet" href="../css/filed.css" />
+    <link rel="stylesheet" href="../css/userpage.css" />
+  </head>
+  <body>
+    <header>
+      <h1>部门名称</h1>
+    </header>
+    <div class="container">
+      <section>
+        <div class="user_data_content">
+        <div class="header"><h2>个人信息</h2></div>
+
+          <div class="section">
+            <ul class="user_data">
+              <li class="name_item">
+                <span>姓名丨</span>
+                <span class="name"></span>
+              </li>
+              <li class="stu_id_item">
+                <span>学号丨</span>
+                <span class="stu_id"></span>
+              </li>
+              <li class="department_item">
+                <span>部门丨</span>
+                <span class="department"></span>
+              </li>
+            </ul>
+          </div>
+          <div class="footer">
+            <a href="#modifyPassword">&lt;修改密码&gt;</a>
+          </div>
+        </div>
+        <div class="modify_password_content">
+        <div class="header"><h2>个人信息</h2></div>
+
+          <div class="section">
+            <ul class="user_data pwd">
+              <li class="old_pwd_item">
+                <span>原密码丨</span>
+                <input type="text" class="old_pswd" />
+              </li>
+              <li class="new_pwd_item pwd_item">
+                <span>新密码丨</span>
+                <input type="text" class="new_pswd" />
+              </li>
+            </ul>
+          </div>
+          <div class="footer">
+            <button class="submit">保存</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+      </section>
+    </div>
+   
+    <footer>
+      <ul class="bottom_nav">
+        <li id="homepage">
+          <div class="icon"></div>
+          <span>首页</span>
+        </li>
+        <li id="issue">
+          <div class="icon"></div>
+          <span>发布</span>
+        </li>
+        <li id="history">
+          <div class="icon"></div>
+          <span>历史</span>
+        </li>
+        <li id="userpage" class="active">
+          <div class="icon"></div>
+          <span>我的</span>
+        </li>
+      </ul>
+    </footer>
+    <div class="popup_shadow hide">
+      <div class="popup">
+        <div class="top"></div>
+        <div class="bottom">
+          <button class="close">确定</button>
+        </div>
+      </div>
+    </div>
+    <script src="../../lib/flexible.js"></script>
+    <script src="../../lib/form-serialize.js"></script>
+    <script src="../../lib/axios.js"></script>
+    <script src="../utils/request.js"></script>
+    <script src="../js/bottom_nav.js"></script>
+    <script src="../js/userpage.js"></script>
+    <script src="../js/modify_pwd.js"></script>
+  </body>
+</html>

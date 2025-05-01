@@ -1,0 +1,33 @@
+@rootFontSize: 39.3 * 1rem;
+
+.user_details {
+  .nav {
+    .bottom {
+      position: relative;
+      .name {
+        position: relative;
+        z-index: 10;
+        display: block;
+        width: (64 / @rootFontSize);
+        height: (30 / @rootFontSize);
+        line-height: (30 / @rootFontSize);
+        margin: 0 auto;
+        font-size: (16 / @rootFontSize);
+        font-weight: 500;
+        color: #000;
+        background-color: #fff;
+      }
+    }
+    .bottom::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      display: block;
+      width: 100%;
+      height: (1.5 / @rootFontSize);
+      background: linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+    }
+  }
+}

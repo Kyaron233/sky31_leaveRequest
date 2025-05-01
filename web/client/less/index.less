@@ -1,0 +1,134 @@
+@rootFontSize: 39.3 * 1rem;
+
+body {
+  width: 100vw;
+  height: 100vh;
+  background-image: url(../images/login_bg.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  header {
+    font-family: '寒蝉团圆体(圆体)';
+    .title {
+     .h1 {
+       position: absolute;
+       top: (148 / @rootFontSize);
+       left: (188 / @rootFontSize);
+       color: #3A3A3A;
+       font-size: (35 / @rootFontSize);
+       font-weight: 500;
+   
+     }
+     .h2 {
+       position: absolute;
+       top: (82 / @rootFontSize);
+       left: (94 / @rootFontSize);
+       font-size: (25 / @rootFontSize);
+       font-weight: 500;
+   
+     }
+    }
+   }
+   
+   section {
+     .input_fields {
+      position: absolute;
+      top: (325 / @rootFontSize);
+      left: (36 / @rootFontSize);
+      color: #A6A6A6;
+      font-family: 'PingFang Medium';
+       .input_field {
+         margin: (10 / @rootFontSize) 0;
+         padding: 0 0 0 (27 / @rootFontSize);
+         width: (320 / @rootFontSize);
+         height: (60 / @rootFontSize);
+         line-height: (60 / @rootFontSize);
+         border: none;      
+         border-radius: (10 / @rootFontSize);
+         background: #D9D9D980;
+         font-size: (15 / @rootFontSize);
+         color: #3A3A3A;
+         span {
+          font-family: 'PingFang Regular';
+         }
+       }
+       input {
+        font-family: 'PingFang Regular';
+       }
+       input::-webkit-input-placeholder {
+         font-size: (15 / @rootFontSize);
+         color: #A6A6A6;
+       }
+       .select {
+         span {
+           color: #A6A6A6;
+         }
+         .department {
+           color: #3A3A3A;
+         }
+       }
+       .forget_pwd {
+         position: absolute;
+         top: (240 / @rootFontSize);
+         left: (260 / @rootFontSize);
+         a {
+           text-decoration: underline;
+           font-size: (14 / @rootFontSize);
+           color: #98E0FF;
+         }
+       }
+     }
+     .options {
+       position: fixed;
+       bottom: 0;
+       z-index: 1500;
+       width: (393 / @rootFontSize);
+       height: (448 / @rootFontSize);
+       padding: (10 / @rootFontSize) (20 / @rootFontSize);
+       border-radius: (10 / @rootFontSize) (10 / @rootFontSize) 0 0;
+       background-color: #FFF;
+       background-image: url(../images/sanyi_bg.png);
+       background-position: center center;
+       background-size: 290px 180px;
+       background-repeat: no-repeat;
+       overflow: scroll;
+       font-family: 'PingFang Regular';
+       li:first-child {
+         border-top: (0.5 / @rootFontSize) solid #707070;
+       }
+       li {
+         width: (353 / @rootFontSize);
+         height: (40 / @rootFontSize);
+         border-bottom: (0.5 / @rootFontSize) solid #707070;
+         a {
+           display: block;
+           width: 100%;
+           height: 100%;
+           line-height: (40 / @rootFontSize);
+           font-family: 'PingFang Regular';
+           font-size: (12 / @rootFontSize);
+           text-align: left;
+           color: #000;
+         }
+   
+       }
+     }
+
+   }
+   
+   footer {
+     .login {
+       position: absolute;
+       top: (610 / @rootFontSize);
+       left: (36 / @rootFontSize);
+       width: (320 / @rootFontSize);
+       height: (60 / @rootFontSize);
+       border-radius: (10 / @rootFontSize);
+       background: linear-gradient(90deg, #CFD7F8 0%, #B7DDFB 36.29%, #98E0FF 100%);
+       font-size: (16 / @rootFontSize);
+       font-family: 'PingFang Medium';
+       color: #FFF;
+     }
+   
+   }
+}

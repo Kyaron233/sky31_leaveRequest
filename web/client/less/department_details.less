@@ -1,0 +1,78 @@
+@rootFontSize: 39.3 * 1rem;
+
+.department_details {
+  .classified_by_name {
+    height: (700 / @rootFontSize);
+    }
+}
+.user_items {
+  padding: 0 (40 / @rootFontSize) (50 / @rootFontSize) (40 / @rootFontSize);
+  width: (336 / @rootFontSize);
+  height: 100%;
+  overflow: scroll;
+  text-align: center;
+  font-size: (16 / @rootFontSize);
+  color: #040000;
+  .lhead {
+    width: (256 / @rootFontSize);
+    height: (24 / @rootFontSize);
+    line-height: (22 / @rootFontSize);
+    margin-top: (7 / @rootFontSize);
+    padding-bottom: (2 / @rootFontSize);
+    border-bottom: (1.5 / @rootFontSize) solid transparent;
+    background-clip: padding-box, border-box;
+    background-origin: padding-box, border-box;
+    background-image: linear-gradient(90deg, #fff 0%, #fff 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+  }
+  .lbody {
+    position: relative;
+    width: (233 / @rootFontSize);
+    height: (28 / @rootFontSize);
+    margin: (13 / @rootFontSize) (11.5 / @rootFontSize);
+    border: (1 / @rootFontSize) solid transparent;
+    background-clip: padding-box, border-box;
+    background-origin: padding-box, border-box;
+    background-image: linear-gradient(90deg, #fcfeff 0%, #fcfeff 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+    border-radius: (10 / @rootFontSize);
+    box-shadow: (4 / @rootFontSize) (4 / @rootFontSize) (20 / @rootFontSize) (0 / @rootFontSize) #C5EDFF4D;
+    line-height: (28 / @rootFontSize);
+    span {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .lbody::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    // height: (16 / @rootFontSize);
+    border-radius: (2 / @rootFontSize);
+    border: (6 / @rootFontSize) solid transparent;
+    border-width: (6 / @rootFontSize) (10 / @rootFontSize);
+    border-left-color: transparent;
+
+    background-clip: padding-box, border-box;
+    background-origin: padding-box, border-box;
+    background-image: linear-gradient(90deg, #fff 0%, #fff 100%), linear-gradient(90deg, #98E0FF 0%, #B7DDFB 63.71%, #CFD7F8 100%);
+  }
+  .lbody::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    // height: (16 / @rootFontSize);
+    border-radius: (2 / @rootFontSize);
+    border: (6 / @rootFontSize) solid #fcfeff;
+    border-width: (6 / @rootFontSize) (10 / @rootFontSize);
+    border-left-color: transparent;
+ 
+  }
+  }
