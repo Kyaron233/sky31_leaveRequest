@@ -1,7 +1,7 @@
 // axios 公共配置
 // 基地址
 // axios.defaults.baseURL = 'http://blog.ruarua.site:8000'
-axios.defaults.baseURL = 'http://localhost:8000/user'
+axios.defaults.baseURL = '/user'
 
 // 添加请求拦截器
 axios.interceptors.request.use(
